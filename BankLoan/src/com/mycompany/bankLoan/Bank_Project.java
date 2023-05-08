@@ -1,10 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
-
-package com.mycompany.bank_project;
-
-import com.mycompany.bank_project.BankLoan;
+package com.mycompany.bankLoan;
 
 import javax.swing.*;
 import java.awt.*;
