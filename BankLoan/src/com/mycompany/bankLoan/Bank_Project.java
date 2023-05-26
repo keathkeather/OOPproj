@@ -73,10 +73,10 @@ public class Bank_Project extends JFrame {
         loanItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                BankLoan loanPanel = new BankLoan();
+                LoanMenu loanMenu = new LoanMenu();
                 getContentPane().removeAll();
                 getContentPane().add(topPanel, BorderLayout.NORTH);
-                getContentPane().add(loanPanel, BorderLayout.CENTER);
+                getContentPane().add(loanMenu, BorderLayout.CENTER);
                 revalidate();
                 repaint();
             }
@@ -89,12 +89,15 @@ public class Bank_Project extends JFrame {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/bankrupt", "username", "password");
+                    "jdbc:mysql://localhost:3306/oop", "root", "");
             System.out.println("Connected to database");
         } catch (Exception e) {
             System.out.println(e);
         }
 
-        new Bank_Project();
+        Bank_Project frame = new Bank_Project();
+        frame.setSize(1080, 720); // Set window size to 1080 x 720 pixels
+        frame.setVisible(true);
     }
+
 }
