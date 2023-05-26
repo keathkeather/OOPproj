@@ -100,7 +100,7 @@ public class ModifiedBankLogin extends JFrame {
         passwordField.setPreferredSize(new Dimension(200, 30));
         loginButton = new RoundedButton("Login", 10);
         registerButton = new RoundedButton("Register", 10);
-        accountNumberLabel = new JLabel("Account Number:");
+        accountNumberLabel = new JLabel("Username:");
         passwordLabel = new JLabel("Password:");
         banknameLabel = new JLabel("Login now and Save Easier with UniBank");
         label = new JLabel("No Account yet? Register now");
