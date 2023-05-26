@@ -66,13 +66,36 @@ class RoundedButton extends JButton {
     }
 }
 
+class RoundedPasswordField extends JPasswordField {
+
+    private int cornerRadius;
+
+    public RoundedPasswordField(int columns, int cornerRadius) {
+        super(columns);
+        this.cornerRadius = cornerRadius;
+        setOpaque(false);
+        setBorder(new EmptyBorder(0, 5, 0, 5));
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(getBackground());
+        g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, cornerRadius, cornerRadius);
+        super.paintComponent(g2);
+        g2.dispose();
+    }
+}
+
 public class ModifiedRegistration extends JFrame {
     
     private JTextField firstnameField, lastnameField, birthdateField, emailField, mobilenumberField;
-    private JTextField middleinitialField, cityField, provinceField, zipcodeField;
+    private JTextField middleinitialField, cityField, provinceField, zipcodeField, usernameField;
+    private JPasswordField passwordField;
     private JButton registerButton, loginButton;
-    private JLabel firstnameLabel, lastnameLabel, birthdateLabel, emailLabel, mobilenumberLabel;
-    private JLabel middleinitialLabel, cityLabel, provinceLabel, zipcodeLabel, registerLabel, orLabel;
+    private JLabel firstnameLabel, lastnameLabel, birthdateLabel, emailLabel, mobilenumberLabel, passwordLabel;
+    private JLabel middleinitialLabel, cityLabel, provinceLabel, zipcodeLabel, registerLabel, orLabel, usernameLabel;
     
     // Database credentials 
     private String dbUrl = "jdbc:mysql://localhost:3306/bank";
@@ -100,11 +123,16 @@ public class ModifiedRegistration extends JFrame {
         provinceField.setPreferredSize(new Dimension(200, 30));
         zipcodeField = new RoundedTextField(20, 10);
         zipcodeField.setPreferredSize(new Dimension(200, 30));
+        usernameField = new RoundedTextField(20, 10);
+        usernameField.setPreferredSize(new Dimension(200, 30));
+        passwordField = new RoundedPasswordField(20, 10);
+        passwordField.setPreferredSize(new Dimension(200, 30));
         registerButton = new JButton("Register");
         loginButton = new JButton("Login");
+        usernameLabel = new JLabel("Create username:");
         firstnameLabel = new JLabel("First name:");
         lastnameLabel = new JLabel("Last name:");
-        birthdateLabel = new JLabel("Birth Date:");
+        birthdateLabel = new JLabel("Birth Date: yy/mm/dd");
         emailLabel = new JLabel("Email:");
         mobilenumberLabel = new JLabel("Mobile Number:");
         middleinitialLabel = new JLabel("Middle Initial:");
@@ -112,6 +140,7 @@ public class ModifiedRegistration extends JFrame {
         provinceLabel = new JLabel("Province/State:");
         zipcodeLabel = new JLabel("Zipcode:");
         registerLabel = new JLabel("Register an Account");
+        passwordLabel = new JLabel("Create password: ");
         orLabel = new JLabel("Or");
         
         
@@ -130,8 +159,12 @@ public class ModifiedRegistration extends JFrame {
         gbc.gridy = 0;
         
         //insets (top, left, right, bottom)
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(3, 3, 3, 3);
         formPanel.add(imageLabel,gbc);
+        gbc.gridy = 11;
+        formPanel.add(passwordLabel,gbc);
+        gbc.gridy = 10;
+        formPanel.add(usernameLabel,gbc);
         gbc.gridy = 9;
         formPanel.add(mobilenumberLabel,gbc);
         gbc.gridy = 8;
@@ -175,18 +208,22 @@ public class ModifiedRegistration extends JFrame {
         formPanel.add(emailField, gbc);
         gbc.gridy = 9;
         formPanel.add(mobilenumberField,gbc);
+        gbc.gridy = 10;
+        formPanel.add(usernameField, gbc);
+        gbc.gridy = 11;
+        formPanel.add(passwordField,gbc);
         
         gbc.gridx = 1;
-        gbc.gridy = 10;
+        gbc.gridy = 12;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         
         formPanel.add(registerButton, gbc);
         gbc.gridx = 1;
-        gbc.gridy = 11;
+        gbc.gridy = 13;
         gbc.fill = GridBagConstraints.CENTER;
         formPanel.add(orLabel,gbc);
         gbc.gridx = 1;
-        gbc.gridy = 12;
+        gbc.gridy = 14;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         formPanel.add(loginButton,gbc);
         
@@ -225,6 +262,10 @@ public class ModifiedRegistration extends JFrame {
         registerLabel.setForeground(Color.WHITE);
         orLabel.setFont(font);
         orLabel.setForeground(Color.WHITE);
+        passwordLabel.setFont(font);
+        passwordLabel.setForeground(Color.WHITE);
+        usernameLabel.setFont(font);
+        usernameLabel.setForeground(Color.WHITE);
         formPanel.setBackground(Color.decode("#5cbfe9"));
         // set frame properties
         setSize(1080,720);
@@ -245,9 +286,11 @@ public class ModifiedRegistration extends JFrame {
             String zipcode = zipcodeField.getText();
             String email = emailField.getText();
             String mobileNumber = mobilenumberField.getText();
+            String username = usernameField.getText();
+            String password = passwordField.getText();
             
             // perform database ModifiedRegistration
-            boolean success = registerUser(firstName, lastName, middleInitial, birthdate, city, province, zipcode, email, mobileNumber);
+            boolean success = registerUser(firstName, lastName, middleInitial, birthdate, city, province, zipcode, email, mobileNumber,username, password);
             
             if (success) {
                 JOptionPane.showMessageDialog(this, "Registration successful!");
@@ -266,49 +309,64 @@ public class ModifiedRegistration extends JFrame {
         });
     }
     
-    private boolean registerUser(String firstName, String lastName, String middleInitial, String birthdate, String city, String province, String zipcode, String email, String mobileNumber){
-        String className= "com.mysql.cj.jdbc.Driver";
-        
-        try{
-            Class.forName(className);
-            System.out.println("Driver is loaded successfully.");
-        }catch(ClassNotFoundException ex){
-            System.out.println("Driver failed to load.");
-        }
-        try {
-            // establish database connection
-            Connection connection = DriverManager.getConnection(dbUrl, username, password);
-            
-            // create SQL statement
-            String sql = "INSERT INTO registration (firstname, lastname, middleinitial, birthday, city, province, zipcode, emailaddress, contactnumber) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            
-            // set parameter values
-            statement.setString(1, firstName);
-            statement.setString(2, lastName);
-            statement.setString(3, middleInitial);
-            statement.setString(4, birthdate);
-            statement.setString(5, city);
-            statement.setString(6, province);
-            statement.setString(7, zipcode);
-            statement.setString(8, email);
-            statement.setString(9, mobileNumber);
-            
-            // execute the statement
-            int rowsInserted = statement.executeUpdate();
-            
-            // close the resources
-            statement.close();
-            connection.close();
-            
-            return rowsInserted > 0; // true if at least one row was inserted
-        } catch (SQLException ex) {
-            ex.printStackTrace();
+    private boolean registerUser(String firstName, String lastName, String middleInitial, String birthdate, String city, String province, String zipcode, String email, String mobileNumber, String username, String password) {
+    String className = "com.mysql.cj.jdbc.Driver";
+
+    try {
+        Class.forName(className);
+        System.out.println("Driver is loaded successfully.");
+    } catch (ClassNotFoundException ex) {
+        System.out.println("Driver failed to load.");
+    }
+    try {
+        // establish database connection
+        Connection connection = DriverManager.getConnection(dbUrl, this.username, this.password);
+
+        // check if the username already exists
+        String checkUsernameQuery = "SELECT * FROM registration WHERE username = ?";
+        PreparedStatement checkUsernameStatement = connection.prepareStatement(checkUsernameQuery);
+        checkUsernameStatement.setString(1, username);
+        ResultSet resultSet = checkUsernameStatement.executeQuery();
+
+        if (resultSet.next()) {
+            // username already exists
+            JOptionPane.showMessageDialog(this, "Username is already taken. Please choose a different username.", "Username Taken", JOptionPane.ERROR_MESSAGE);
             return false;
         }
+
+        // create SQL statement
+        String sql = "INSERT INTO registration (firstname, lastname, middleinitial, birthday, city, province, zipcode, emailaddress, contactnumber, username, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        PreparedStatement statement = connection.prepareStatement(sql);
+
+        // set parameter values
+        statement.setString(1, firstName);
+        statement.setString(2, lastName);
+        statement.setString(3, middleInitial);
+        statement.setString(4, birthdate);
+        statement.setString(5, city);
+        statement.setString(6, province);
+        statement.setString(7, zipcode);
+        statement.setString(8, email);
+        statement.setString(9, mobileNumber);
+        statement.setString(10, username);
+        statement.setString(11, password);
+
+        // execute the statement
+        int rowsInserted = statement.executeUpdate();
+
+        // close the resources
+        resultSet.close();
+        checkUsernameStatement.close();
+        statement.close();
+        connection.close();
+
+        return rowsInserted > 0; // true if at least one row was inserted
+    } catch (SQLException ex) {
+        ex.printStackTrace();
+        return false;
     }
-    
-    
+}
+
     public static void main(String[] args) {
         new ModifiedRegistration();
     }
