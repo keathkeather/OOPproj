@@ -42,7 +42,6 @@ public class LoanMenu extends JPanel {
         moreDetailsButton = new Rounded.RoundedButton("More Details", 10);
         moreDetailsButton.addActionListener(new MoreDetailsButtonListener());
         buttonPanel.add(moreDetailsButton);
-
         moreDetailsButton.setPreferredSize(new Dimension(130, 30));
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.EAST;
