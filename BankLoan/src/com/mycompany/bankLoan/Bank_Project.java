@@ -9,7 +9,7 @@ import java.awt.event.ActionEvent;
 public class Bank_Project extends JFrame {
     private JLabel nameLabel, accNumberLabel, pictureLabel;
     private JMenuItem createItem, historyItem, viewProfileItem, bankTransferItem, payBillItem, performTransactionItem;
-    private JButton loanItem;
+    private JButton loanItem, savingsItem;
 
     public Bank_Project() {
         setTitle("Bankrupt Bank App");
@@ -33,6 +33,7 @@ public class Bank_Project extends JFrame {
         payBillItem = new JMenuItem("Pay Bill");
         performTransactionItem = new JMenuItem("Perform Transactions");
         loanItem = new JButton("Loan");
+        savingsItem = new JButton("Savings");
 
         JPanel mainPanel = new JPanel(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
@@ -50,6 +51,7 @@ public class Bank_Project extends JFrame {
         payBillItem.setFont(font);
         performTransactionItem.setFont(font);
         loanItem.setFont(font);
+        savingsItem.setFont(font);
 
         mainPanel.add(createItem, constraints);
         constraints.gridx++;
@@ -66,6 +68,8 @@ public class Bank_Project extends JFrame {
         constraints.gridx = 0;
         constraints.gridy++;
         mainPanel.add(loanItem, constraints);
+        constraints.gridx++;
+        mainPanel.add(savingsItem, constraints);
 
         add(topPanel, BorderLayout.NORTH);
         add(mainPanel, BorderLayout.CENTER);
@@ -77,6 +81,19 @@ public class Bank_Project extends JFrame {
                 getContentPane().removeAll();
                 getContentPane().add(topPanel, BorderLayout.NORTH);
                 getContentPane().add(loanMenu, BorderLayout.CENTER);
+                revalidate();
+                repaint();
+            }
+        });
+
+        savingsItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SavingsMenu savingsMenu = new SavingsMenu();
+                getContentPane().removeAll(); // Remove all components from the content pane
+                getContentPane().setLayout(new BorderLayout()); // Set the desired layout for the content pane
+                getContentPane().add(topPanel, BorderLayout.NORTH);
+                getContentPane().add(savingsMenu, BorderLayout.CENTER);
                 revalidate();
                 repaint();
             }
