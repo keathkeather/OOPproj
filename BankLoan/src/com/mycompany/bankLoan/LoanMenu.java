@@ -140,9 +140,15 @@ public class LoanMenu extends JPanel {
         public void actionPerformed(ActionEvent e) {
             try {
                 Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/oop", "root", "");
-                Statement statement = connection.createStatement();
 
+                Statement statement = connection.createStatement();
                 ResultSet resultSet = statement.executeQuery("SELECT remainingBal FROM loan");
+
+                // Retrieve the current accountID from the account table
+                int currentCustomerID = getCurrentCustomerID(connection);
+
+                // Check if the current accountID exists in the loan table
+                boolean hasActiveLoan = checkActiveLoan(connection, currentCustomerID);
 
                 if (!resultSet.next()) {
                     // No entry in the database, redirect to BankLoan so a loan can be applied
@@ -153,12 +159,12 @@ public class LoanMenu extends JPanel {
                     parentFrame.repaint();
                 } else {
                     double remainingBal = resultSet.getDouble("remainingBal");
-                    if (remainingBal > 0) {
+                    if (hasActiveLoan && remainingBal > 0) {
                         JOptionPane.showMessageDialog(LoanMenu.this,
                                 "Sorry, you cannot apply for a loan yet. Please fully pay your current loan balance.",
                                 "Loan Application Denied",
                                 JOptionPane.ERROR_MESSAGE);
-                    } else {
+                    } else if (hasActiveLoan && remainingBal <= 0) {
                         // Delete values in the loan table
                         deleteLoanRecords();
 
@@ -167,15 +173,49 @@ public class LoanMenu extends JPanel {
                         parentFrame.getContentPane().add(new BankLoan(), BorderLayout.CENTER);
                         parentFrame.revalidate();
                         parentFrame.repaint();
+                    } else {
+                        JFrame parentFrame = (JFrame) SwingUtilities.getRoot(LoanMenu.this);
+                        parentFrame.getContentPane().removeAll();
+                        parentFrame.getContentPane().add(new BankLoan(), BorderLayout.CENTER);
+                        parentFrame.revalidate();
+                        parentFrame.repaint();
                     }
+                    connection.close();
                 }
-
-                resultSet.close();
-                statement.close();
-                connection.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
+        }
+
+        private int getCurrentCustomerID(Connection connection) throws SQLException {
+            int customerID = -1; // Default value if accountID is not found
+
+            String query = "SELECT customerID FROM account";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+
+            if (resultSet.next()) {
+                customerID = resultSet.getInt("customerID");
+            }
+
+            resultSet.close();
+            statement.close();
+
+            return customerID;
+        }
+
+        private boolean checkActiveLoan(Connection connection, int customerID) throws SQLException {
+            String query = "SELECT customerID FROM loan WHERE customerID = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setInt(1, customerID);
+
+            ResultSet resultSet = statement.executeQuery();
+            boolean hasActiveLoan = resultSet.next();
+
+            resultSet.close();
+            statement.close();
+
+            return hasActiveLoan;
         }
     }
 
@@ -219,6 +259,7 @@ public class LoanMenu extends JPanel {
                         parentFrame.revalidate();
                         parentFrame.repaint();
                     } else {
+                        deleteLoanRecords();
                         // Remaining balance = 0
                         JOptionPane.showMessageDialog(LoanMenu.this,
                                 "You have no loan to pay. Please apply for a new one.",

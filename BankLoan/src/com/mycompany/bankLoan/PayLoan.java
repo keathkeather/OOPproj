@@ -93,7 +93,7 @@ public class PayLoan extends JPanel {
         try {
             Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/oop", "root", "");
 
-            String sql = "UPDATE savingsAcc SET savings = savings - ?";
+            String sql = "UPDATE account SET savings = savings - ? WHERE accountType = 2";
             PreparedStatement statement = conn.prepareStatement(sql);
             statement.setDouble(1, amount);
 

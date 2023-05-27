@@ -13,10 +13,11 @@ public class BankLoan extends JPanel {
     private JLabel amountLabel, durationLabel, inputDetailsLabel;
     private JPanel loanDetailsPanel;
     private Rounded.RoundedTextField amountField, durationField, interestRateField;
-    private Rounded.RoundedButton calculateButton, applyLoanButton;
+    private Rounded.RoundedButton calculateButton, applyLoanButton, cancelButton;
     private Rounded.RoundedTextArea loanInfoField;
     private CustomCalculateListener calculateListener;
     private ApplyLoanListener applyLoanListener;
+    private CancelLoanListener cancelLoanListener;
     private Connection connection;
     private NavBar navBar;
     private Font labelFont, labelFont1;
@@ -120,6 +121,16 @@ public class BankLoan extends JPanel {
         constraints.fill = GridBagConstraints.NONE;
         loanDetailsPanel.add(applyLoanButton, constraints);
 
+        constraints.gridx++;
+
+        cancelButton = new Rounded.RoundedButton("Cancel", 10);
+        cancelButton.setPreferredSize(new Dimension(100, 30));
+        cancelLoanListener = new CancelLoanListener();
+        cancelButton.addActionListener(cancelLoanListener);
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx++;
+        loanDetailsPanel.add(cancelButton, constraints);
+
         constraints.gridy++;
 
         add(loanDetailsPanel, BorderLayout.CENTER);
@@ -168,13 +179,25 @@ public class BankLoan extends JPanel {
                 java.util.Date endDate = calendar.getTime();
                 String endDateStr = dateFormat.format(endDate);
 
+                // Retrieve the accountID from the account table
+                String customerIDQuery = "SELECT customerID FROM account";
+                PreparedStatement accountIDStatement = connection.prepareStatement(customerIDQuery);
+                ResultSet customerIDResult = accountIDStatement.executeQuery();
+
+                int customerID = 0; // Initialize with a default value
+                if (customerIDResult.next()) {
+                    customerID = customerIDResult.getInt("customerID");
+                }
+
                 // Inserting loan information into the database
-                String insertSql = "INSERT INTO loan (amount, startDATE, duration) VALUES (?, ?, ?)";
+                String insertSql = "INSERT INTO loan (amount, startDATE, duration, customerID) VALUES (?, ?, ?, ?)";
                 PreparedStatement insertStatement = connection.prepareStatement(insertSql,
                         Statement.RETURN_GENERATED_KEYS);
                 insertStatement.setDouble(1, loanAmount);
                 insertStatement.setString(2, startDateStr);
                 insertStatement.setInt(3, loanDuration);
+                insertStatement.setInt(4, customerID);
+
                 insertStatement.executeUpdate();
 
                 // Retrieving loan information from the database
@@ -233,27 +256,92 @@ public class BankLoan extends JPanel {
     private class ApplyLoanListener extends MouseAdapter {
         @Override
         public void mouseClicked(MouseEvent e) {
-            int option = JOptionPane.showOptionDialog(
-                    null,
-                    "Congratulations! You have successfully applied for a loan.",
-                    "Loan Application",
-                    JOptionPane.DEFAULT_OPTION,
-                    JOptionPane.INFORMATION_MESSAGE,
-                    null,
-                    new Object[] { "OK" },
-                    null);
-            if (option == JOptionPane.OK_OPTION || option == JOptionPane.CLOSED_OPTION) {
-                SwingUtilities.invokeLater(() -> {
-                    LoanMenu loanMenu = new LoanMenu();
-                    JFrame currentWindow = (JFrame) SwingUtilities.getWindowAncestor(BankLoan.this);
-                    JPanel newContentPane = new JPanel();
-                    newContentPane.setLayout(new BorderLayout());
-                    newContentPane.add(loanMenu, BorderLayout.CENTER);
-                    currentWindow.setContentPane(newContentPane);
-                    currentWindow.revalidate();
-                });
-            }
+            try {
+                double loanAmount = Double.parseDouble(getAmountField().getText());
 
+                // Update the savings field in the account table
+                String updateSql = "UPDATE account SET savings = savings + ? WHERE accountType = ?";
+                PreparedStatement updateStatement = connection.prepareStatement(updateSql);
+                updateStatement.setDouble(1, loanAmount);
+                updateStatement.setInt(2, 2);
+                updateStatement.executeUpdate();
+
+                int option = JOptionPane.showOptionDialog(
+                        null,
+                        "Congratulations! You have successfully applied for a loan.",
+                        "Loan Application",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE,
+                        null,
+                        new Object[] { "OK" },
+                        null);
+                if (option == JOptionPane.OK_OPTION || option == JOptionPane.CLOSED_OPTION) {
+                    SwingUtilities.invokeLater(() -> {
+                        LoanMenu loanMenu = new LoanMenu();
+                        JFrame currentWindow = (JFrame) SwingUtilities.getWindowAncestor(BankLoan.this);
+                        JPanel newContentPane = new JPanel();
+                        newContentPane.setLayout(new BorderLayout());
+                        newContentPane.add(loanMenu, BorderLayout.CENTER);
+                        currentWindow.setContentPane(newContentPane);
+                        currentWindow.revalidate();
+                    });
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Error connecting to the database.", "Database Error",
+                        JOptionPane.ERROR_MESSAGE);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null, "Invalid input.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
+
+    private class CancelLoanListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            int confirmOption = JOptionPane.showConfirmDialog(
+                    null,
+                    "Are you sure you want to cancel the loan application?",
+                    "Cancel Loan Application",
+                    JOptionPane.YES_NO_OPTION);
+
+            if (confirmOption == JOptionPane.YES_OPTION) {
+                try {
+                    // Delete loan information from the database
+                    String sql = "DELETE FROM loan";
+                    PreparedStatement statement = connection.prepareStatement(sql);
+
+                    statement.executeUpdate();
+
+                    statement.close();
+                    connection.close();
+
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Loan application canceled.",
+                            "Loan Application",
+                            JOptionPane.INFORMATION_MESSAGE);
+
+                    // Redirect to the LoanMenu page
+                    SwingUtilities.invokeLater(() -> {
+                        LoanMenu loanMenu = new LoanMenu();
+                        JFrame currentWindow = (JFrame) SwingUtilities.getWindowAncestor(BankLoan.this);
+                        JPanel newContentPane = new JPanel();
+                        newContentPane.setLayout(new BorderLayout());
+                        newContentPane.add(loanMenu, BorderLayout.CENTER);
+                        currentWindow.setContentPane(newContentPane);
+                        currentWindow.revalidate();
+                    });
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Error canceling the loan application.",
+                            "Database Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+    }
+
 }
