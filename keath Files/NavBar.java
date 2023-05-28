@@ -1,4 +1,4 @@
-package AssignedFeature;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,10 +24,10 @@ public class NavBar extends JPanel {
         referenceBox.setLayout(new BorderLayout());
         referenceBox.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         JLabel referenceLabel = new JLabel("Checking Accounts");
-        referenceLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        referenceLabel.setFont(new Font("Arial", Font.PLAIN, 14)); 
         referenceBox.add(referenceLabel, BorderLayout.CENTER);
         Dimension referenceSize = referenceBox.getPreferredSize();
-        referenceSize.width += 35;
+        referenceSize.width += 35; 
 
         for (String label : navLabels) {
             JPanel navBox = new JPanel();
@@ -47,37 +47,9 @@ public class NavBar extends JPanel {
                 navButton.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        ((Window) getRootPane().getParent()).dispose();
                         EventQueue.invokeLater(new Runnable() {
                             public void run() {
-                                CreditCard creditCard = new CreditCard();
-                                creditCard.setVisible(true);
-                            }
-                        });
-                    }
-                });
-            } else if (label.equals("Bill Payments")) {
-                navButton.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        ((Window) getRootPane().getParent()).dispose();
-                        EventQueue.invokeLater(new Runnable() {
-                            public void run() {
-                                BillPayments billPayments = new BillPayments();
-                                billPayments.setVisible(true);
-                            }
-                        });
-                    }
-                });
-            } else if (label.equals("Investments")) {
-                navButton.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        ((Window) getRootPane().getParent()).dispose();
-                        EventQueue.invokeLater(new Runnable() {
-                            public void run() {
-                                Investment investment = new Investment();
-                                investment.setVisible(true);
+                                new creditCard().setVisible(true);
                             }
                         });
                     }

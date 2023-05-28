@@ -1,274 +1,187 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
 package AssignedFeature;
 
-/**
- *
- * @author Simoun Tompar
- */
-
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.PreparedStatement;
-import java.sql.Connection;
-
 
 public class CreditCard extends JFrame {
-
-    private CreditCardDatabaseManager dbManager = new CreditCardDatabaseManager();
+    private CreditCardDatabaseManager dbManager;
+    private JLabel remainingBalanceLabel;
+    private JLabel currentLimitLabel;
+    private JLabel paymentDueLabel;
 
     public CreditCard() {
+        dbManager = new CreditCardDatabaseManager();
+
         setTitle("Credit Card Management");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1080, 720);
-        getContentPane().setBackground(Color.WHITE);
+        setLocationRelativeTo(null);
 
-        JPanel contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setBackground(Color.WHITE);
+        Color skyBlue = new Color(51, 122, 183);
+        Color darkBlue = new Color(0, 32, 63);
+        Color white = Color.WHITE;
 
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        getContentPane().setBackground(skyBlue);
 
-        DefaultTableModel tableModel = new DefaultTableModel();
-        JTable table = new JTable(tableModel);
-        tableModel.addColumn("Card ID");
-        tableModel.addColumn("Card Number");
-        tableModel.addColumn("Credit Limit");
-        tableModel.addColumn("Interest Rate");
-        tableModel.addColumn("Payment Due Date");
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setBackground(skyBlue);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(100, 100, 100, 100));
 
-        JScrollPane scrollPane = new JScrollPane(table);
-        contentPanel.add(scrollPane, BorderLayout.CENTER);
-        
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        buttonPanel.setBackground(Color.WHITE);
+        JLabel remainingBalanceTitle = new JLabel("Remaining Balance:");
+        remainingBalanceTitle.setFont(new Font("Arial", Font.BOLD, 24));
+        remainingBalanceTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        contentPanel.add(remainingBalanceTitle);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        StyledButton addCardButton = new StyledButton("Add New Credit Card");
-        addCardButton.addActionListener(new ActionListener() {
+        JPanel remainingBalanceContainer = new JPanel();
+        remainingBalanceContainer.setBackground(white);
+        remainingBalanceContainer.setMaximumSize(new Dimension(150, 100));
+        remainingBalanceContainer.setLayout(new BorderLayout());
+
+        remainingBalanceLabel = new JLabel();
+        updateRemainingBalanceLabel();
+        remainingBalanceLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        remainingBalanceLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        remainingBalanceContainer.add(remainingBalanceLabel, BorderLayout.CENTER);
+
+        contentPanel.add(remainingBalanceContainer);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+
+        JLabel currentLimitTitle = new JLabel("Current Limit:");
+        currentLimitTitle.setFont(new Font("Arial", Font.BOLD, 24));
+        currentLimitTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        contentPanel.add(currentLimitTitle);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        JPanel currentLimitContainer = new JPanel();
+        currentLimitContainer.setBackground(white);
+        currentLimitContainer.setMaximumSize(new Dimension(150, 100));
+        currentLimitContainer.setLayout(new BorderLayout());
+
+        currentLimitLabel = new JLabel();
+        updateCurrentLimitLabel();
+        currentLimitLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        currentLimitLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        currentLimitContainer.add(currentLimitLabel, BorderLayout.CENTER);
+
+        contentPanel.add(currentLimitContainer);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+
+        JLabel paymentDueTitle = new JLabel("Payment Due Date:");
+        paymentDueTitle.setFont(new Font("Arial", Font.BOLD, 24));
+        paymentDueTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        contentPanel.add(paymentDueTitle);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        JPanel paymentDueContainer = new JPanel();
+        paymentDueContainer.setBackground(white);
+        paymentDueContainer.setMaximumSize(new Dimension(150, 100));
+        paymentDueContainer.setLayout(new BorderLayout());
+
+        paymentDueLabel = new JLabel();
+        updatePaymentDueLabel();
+        paymentDueLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        paymentDueLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        paymentDueContainer.add(paymentDueLabel, BorderLayout.CENTER);
+
+        contentPanel.add(paymentDueContainer);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+
+        StyledButton transactionHistoryButton = new StyledButton("Transaction History");
+        transactionHistoryButton.setFont(new Font("Arial", Font.PLAIN, 18));
+        transactionHistoryButton.setBackground(darkBlue);
+        transactionHistoryButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                showAddCreditCardDialog(tableModel);
+                // e add lang nya dri ang trasactionHistory na code 
             }
         });
-        buttonPanel.add(addCardButton);
+        transactionHistoryButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        contentPanel.add(transactionHistoryButton);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 40)));
 
-        StyledButton updateCardButton = new StyledButton("Update Credit Card");
-        updateCardButton.addActionListener(new ActionListener() {
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+        buttonPanel.setBackground(skyBlue);
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        StyledButton createButton = new StyledButton("Create Credit Card");
+        createButton.setFont(new Font("Arial", Font.PLAIN, 15));
+        createButton.setBackground(darkBlue);
+        createButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int selectedRow = table.getSelectedRow();
-                if (selectedRow != -1) {
-                    int cardID = (int) table.getValueAt(selectedRow, 0);
-                    showUpdateCreditCardDialog(cardID, tableModel);
-                } else {
-                    JOptionPane.showMessageDialog(CreditCard.this, "Please select a credit card to update.", "No Credit Card Selected", JOptionPane.WARNING_MESSAGE);
+                String[] cardTypes = dbManager.getDefaultCardTypes();
+                JComboBox<String> cardTypeBox = new JComboBox<>(cardTypes);
+                int result = JOptionPane.showConfirmDialog(null, cardTypeBox, "Please select a card type", JOptionPane.OK_CANCEL_OPTION);
+
+                if (result == JOptionPane.OK_OPTION) {
+                    String cardType = (String) cardTypeBox.getSelectedItem();
+                    if (dbManager.createNewCreditCard(500.0, 1000.0, "2023-12-31", cardType)) {
+                        JOptionPane.showMessageDialog(null, "Credit Card creation is successful!", "Information", JOptionPane.INFORMATION_MESSAGE);
+                        updateRemainingBalanceLabel();
+                        updateCurrentLimitLabel();
+                        updatePaymentDueLabel();
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Error in creating the Credit Card!", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         });
-        buttonPanel.add(updateCardButton);
+        buttonPanel.add(createButton);
+        buttonPanel.add(Box.createRigidArea(new Dimension(15, 0)));
 
-        StyledButton deleteCardButton = new StyledButton("Delete Credit Card");
-        deleteCardButton.addActionListener(new ActionListener() {
+        StyledButton deleteButton = new StyledButton("Delete Credit Card");
+        deleteButton.setFont(new Font("Arial", Font.PLAIN, 15));
+        deleteButton.setBackground(darkBlue);
+        deleteButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int selectedRow = table.getSelectedRow();
-                if (selectedRow != -1) {
-                    int cardID = (int) table.getValueAt(selectedRow, 0);
-                    deleteCreditCard(cardID, tableModel);
-                } else {
-                    JOptionPane.showMessageDialog(CreditCard.this, "Please select a credit card to delete.", "No Credit Card Selected", JOptionPane.WARNING_MESSAGE);
+                String[] cards = dbManager.getCreditCards(); 
+                JComboBox<String> cardBox = new JComboBox<>(cards);
+                int result = JOptionPane.showConfirmDialog(null, cardBox, "Please select a card to delete", JOptionPane.OK_CANCEL_OPTION);
+
+                if (result == JOptionPane.OK_OPTION) {
+                    String cardInfo = (String) cardBox.getSelectedItem();
+                    int cardId = Integer.parseInt(cardInfo.split(":")[0]); // Assuming that the cardInfo string starts with the card_id.
+                    if (dbManager.deleteCreditCard(cardId)) {
+                        JOptionPane.showMessageDialog(null, "Credit Card deletion is successful!", "Information", JOptionPane.INFORMATION_MESSAGE);
+                        updateRemainingBalanceLabel();
+                        updateCurrentLimitLabel();
+                        updatePaymentDueLabel();
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Error in deleting the Credit Card!", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         });
-        buttonPanel.add(deleteCardButton);
+        buttonPanel.add(deleteButton);
 
-        contentPanel.add(buttonPanel, BorderLayout.SOUTH);
-
+        contentPanel.add(buttonPanel);
         getContentPane().add(contentPanel, BorderLayout.CENTER);
-
-        fetchCreditCardData(tableModel);
 
         NavBar navBar = new NavBar();
         JScrollPane navBarScrollPane = new JScrollPane(navBar);
         navBarScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-
         getContentPane().add(navBarScrollPane, BorderLayout.WEST);
     }
 
-    private void fetchCreditCardData(DefaultTableModel tableModel) {
-        try {
-            ResultSet resultSet = dbManager.fetchCreditCardData();
-            while (resultSet.next()) {
-                int cardID = resultSet.getInt("cardID");
-                String cardNumber = resultSet.getString("cardNumber");
-                double creditLimit = resultSet.getDouble("creditLimit");
-                double interestRate = resultSet.getDouble("interestRate");
-                String paymentDueDate = resultSet.getString("paymentDueDate");
-
-                Object[] row = {cardID, cardNumber, creditLimit, interestRate, paymentDueDate};
-                tableModel.addRow(row);
-            }
-            resultSet.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    private void updateRemainingBalanceLabel() {
+        double balance = dbManager.getRemainingBalance(3);  // g assume rani nako sila dri na cardID 3 pero e connect lang nya nis changes sa database
+        remainingBalanceLabel.setText("P" + balance);
     }
 
-    private void showAddCreditCardDialog(DefaultTableModel tableModel) {
-        JDialog dialog = new JDialog(this, "Add New Credit Card", true);
-        dialog.setSize(400, 300);
-        dialog.setLocationRelativeTo(this);
-
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(5, 2, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-        JLabel cardNumberLabel = new JLabel("Card Number:");
-        JTextField cardNumberField = new JTextField();
-        JLabel creditLimitLabel = new JLabel("Credit Limit:");
-        JTextField creditLimitField = new JTextField();
-        JLabel interestRateLabel = new JLabel("Interest Rate:");
-        JTextField interestRateField = new JTextField();
-        JLabel paymentDueDateLabel = new JLabel("Payment Due Date:");
-        JTextField paymentDueDateField = new JTextField();
-
-        JButton addButton = new JButton("Add");
-        addButton.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            String cardNumber = cardNumberField.getText();
-            double creditLimit;
-            double interestRate;
-            try {
-                creditLimit = Double.parseDouble(creditLimitField.getText());
-                interestRate = Double.parseDouble(interestRateField.getText());
-            } catch (NumberFormatException exception) {
-                JOptionPane.showMessageDialog(dialog, "Invalid number format.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            if (creditLimit < 0 || interestRate < 0) {
-                JOptionPane.showMessageDialog(dialog, "Credit Limit and Interest Rate cannot be negative.", "Invalid input", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            String paymentDueDate = paymentDueDateField.getText();
-            addCreditCard(cardNumber, creditLimit, interestRate, paymentDueDate, tableModel);
-            dialog.dispose();
-        }
-    });
-
-        panel.add(cardNumberLabel);
-        panel.add(cardNumberField);
-        panel.add(creditLimitLabel);
-        panel.add(creditLimitField);
-        panel.add(interestRateLabel);
-        panel.add(interestRateField);
-        panel.add(paymentDueDateLabel);
-        panel.add(paymentDueDateField);
-        panel.add(new JLabel()); 
-        panel.add(addButton);
-
-        dialog.add(panel);
-        dialog.setVisible(true);
+    private void updateCurrentLimitLabel() {
+        double limit = dbManager.getCurrentLimit(3);  
+        currentLimitLabel.setText("P" + limit);
     }
 
-    private void showUpdateCreditCardDialog(int cardID, DefaultTableModel tableModel) {
-    try {
-        Connection connection = dbManager.getConnection();
-        PreparedStatement statement = connection.prepareStatement("SELECT * FROM creditcard WHERE cardID = ?");
-        statement.setInt(1, cardID);
-        ResultSet resultSet = dbManager.getCreditCard(cardID);
-
-        if (resultSet.next()) {
-            String cardNumber = resultSet.getString("cardNumber");
-            double creditLimit = resultSet.getDouble("creditLimit");
-            double interestRate = resultSet.getDouble("interestRate");
-            String paymentDueDate = resultSet.getString("paymentDueDate");
-
-            JDialog dialog = new JDialog(this, "Update Credit Card", true);
-            dialog.setSize(400, 300);
-            dialog.setLocationRelativeTo(this);
-
-            JPanel panel = new JPanel();
-            panel.setLayout(new GridLayout(5, 2, 10, 10));
-            panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-            JLabel cardNumberLabel = new JLabel("Card Number:");
-            JTextField cardNumberField = new JTextField(cardNumber);
-            JLabel creditLimitLabel = new JLabel("Credit Limit:");
-            JTextField creditLimitField = new JTextField(String.valueOf(creditLimit));
-            JLabel interestRateLabel = new JLabel("Interest Rate:");
-            JTextField interestRateField = new JTextField(String.valueOf(interestRate));
-            JLabel paymentDueDateLabel = new JLabel("Payment Due Date:");
-            JTextField paymentDueDateField = new JTextField(paymentDueDate);
-
-            JButton updateButton = new JButton("Update");
-            updateButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    String newCardNumber = cardNumberField.getText();
-                    double newCreditLimit;
-                double newInterestRate;
-                try {
-                    newCreditLimit = Double.parseDouble(creditLimitField.getText());
-                    newInterestRate = Double.parseDouble(interestRateField.getText());
-                } catch (NumberFormatException exception) {
-                    JOptionPane.showMessageDialog(dialog, "Invalid number format.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-                }
-                String newPaymentDueDate = paymentDueDateField.getText();
-
-                updateCreditCard(cardID, newCardNumber, newCreditLimit, newInterestRate, newPaymentDueDate, tableModel);
-
-                dialog.dispose();
-            }
-        });
-
-            panel.add(cardNumberLabel);
-            panel.add(cardNumberField);
-            panel.add(creditLimitLabel);
-            panel.add(creditLimitField);
-            panel.add(interestRateLabel);
-            panel.add(interestRateField);
-            panel.add(paymentDueDateLabel);
-            panel.add(paymentDueDateField);
-            panel.add(new JLabel()); 
-            panel.add(updateButton);
-
-            dialog.add(panel);
-            dialog.setVisible(true);
-        }
-
-        resultSet.close();
-        statement.close();
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-}
-
-    private void addCreditCard(String cardNumber, double creditLimit, double interestRate, String paymentDueDate, DefaultTableModel tableModel) {
-        dbManager.addCreditCard(cardNumber, creditLimit, interestRate, paymentDueDate);
-        tableModel.setRowCount(0);
-        fetchCreditCardData(tableModel);
-    }
-
-    private void updateCreditCard(int cardID, String cardNumber, double creditLimit, double interestRate, String paymentDueDate, DefaultTableModel tableModel) {
-        dbManager.updateCreditCard(cardID, cardNumber, creditLimit, interestRate, paymentDueDate);
-        tableModel.setRowCount(0);
-        fetchCreditCardData(tableModel);
-    }
-
-    private void deleteCreditCard(int cardID, DefaultTableModel tableModel) {
-        dbManager.deleteCreditCard(cardID);
-        tableModel.setRowCount(0);
-        fetchCreditCardData(tableModel);
+    private void updatePaymentDueLabel() {
+        String dueDate = dbManager.getPaymentDueDate(3); 
+        paymentDueLabel.setText(dueDate);
     }
 
     public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new CreditCard().setVisible(true);
-            }
-        });
+        new CreditCard().setVisible(true);
     }
 }

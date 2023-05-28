@@ -12,8 +12,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 
 
@@ -26,7 +24,6 @@ public class ModifiedBankLogin extends JFrame {
     private JLabel passwordLabel;
     private JLabel banknameLabel;
     private JLabel label;
-    private ModifiedRegistration modifiedRegistration;
 
     public ModifiedBankLogin() {
         super("BankRupt");
@@ -116,59 +113,19 @@ public class ModifiedBankLogin extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setVisible(true);
-        
-      
 
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (modifiedRegistration == null) {
-                    modifiedRegistration = new ModifiedRegistration();
-                    JDialog dialog = new JDialog();
-                    dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-                    dialog.setContentPane(modifiedRegistration);
-                    dialog.setSize(720,720);
-                    // dialog.pack();
-                    dialog.setLocationRelativeTo(null);
-                    dialog.addWindowListener(new WindowAdapter() {
-                        @Override
-                        public void windowClosed(WindowEvent e) {
-                            modifiedRegistration = null;
-                        }
-                    });
-                    dialog.setVisible(true);
-                } else {
-                    modifiedRegistration.setVisible(true);
-                }
+                // create an instance of the other class
+                ModifiedRegistration userLogin = new ModifiedRegistration();
+                remove(mainPanel);
+                add(userLogin);
+                revalidate();
+                repaint();
             }
         });
-        loginButton.addActionListener(new ActionListener() {
-            
-            @Override
-            public void actionPerformed(ActionEvent e){
-                String userName = accountNumberField.getText();
-                char[] passwordchar = passwordField.getPassword();
-                String password = new String(passwordchar);
-
-                checkLogin Check = new checkLogin();
-                int CustomerID = Check.CheckLogin(userName,password);
-
-                if(CustomerID!=-1){
-                    SavingsMenu savingsMenu = new SavingsMenu(CustomerID);
-                    mainPanel.removeAll(); // Remove existing components from mainPanel
-                    mainPanel.add(banknameLabel, BorderLayout.NORTH);
-                    mainPanel.add(savingsMenu, BorderLayout.CENTER); // Add SavingsMenu JPanel to mainPanel
-                    mainPanel.revalidate();
-
-                }
-                else{
-                    JOptionPane.showMessageDialog(ModifiedBankLogin.this, "Invalid username or password", "Login Failed", JOptionPane.ERROR_MESSAGE);
-                }
-
-            }
-        });
-        
-}
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
