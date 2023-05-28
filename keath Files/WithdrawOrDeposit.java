@@ -11,11 +11,12 @@ public class WithdrawOrDeposit extends JPanel {
     private GridBagConstraints gbc;
     private Connection connection;
 
-    private String dbUrl = "jdbc:mysql://localhost:3306/oop";
+    private String dbUrl = "jdbc:mysql://localhost:3306/oopproject";
     private String username = "root";
     private String password = "";
-
-    public WithdrawOrDeposit() {
+    private int  customerID;
+    public WithdrawOrDeposit(int customerID) {
+        this.customerID = customerID;
         setLayout(new BorderLayout());
         setBackground(Color.decode("#5cbfe9"));
 
@@ -42,7 +43,6 @@ public class WithdrawOrDeposit extends JPanel {
 
         depositButton = new Rounded.RoundedButton("Deposit", 10);
         depositButton.setPreferredSize(new Dimension(100, 30));
-        depositButton.addActionListener(new DepositButtonListener());
         inputPanel.add(depositButton, gbc);
 
         gbc.gridx = 0;
@@ -78,54 +78,66 @@ public class WithdrawOrDeposit extends JPanel {
             JOptionPane.showMessageDialog(null, "Error connecting to the database.", "Database Error",
                     JOptionPane.ERROR_MESSAGE);
         }
-    }
 
-    private double retrieveSavingsFromDatabase() {
-        double savings = 0.0; // Default value in case the retrieval fails
 
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT savings FROM account WHERE accountType = 1");
-
-            if (resultSet.next()) {
-                savings = resultSet.getDouble("savings");
-            }
-            connection.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return savings;
-    }
-
-    private class DepositButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String depositAmount = depositTextField.getText();
+        depositButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e){
+                String depositAmount = depositTextField.getText();
             try {
                 double amount = Double.parseDouble(depositAmount);
-                updateSavingsInDatabase(amount);
+                System.out.println(amount);
+                updateSavingsInDatabase(amount,customerID);
                 JOptionPane.showMessageDialog(null, "Deposit Success!", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(null, "Cannot deposit amount", "Error", JOptionPane.ERROR_MESSAGE);
             }
             depositTextField.setText("");
-        }
-
+            }
+        });
     }
 
-    private void updateSavingsInDatabase(double depositAmount) {
+    private double retrieveSavingsFromDatabase(int customerID) {
+        getAccBalance balance = new getAccBalance(customerID);
+        return balance.getBalance();
+    }
+    
+    
+
+   
+
+    private void updateSavingsInDatabase(double depositAmount, int customerID) {
+        PreparedStatement statement = null;
+        ResultSet accIDResultSet = null;
+    
         try {
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/oop", "root", "");
-            PreparedStatement statement = connection
-                    .prepareStatement("UPDATE account SET savings = savings + ? WHERE accountType = 1");
-            statement.setDouble(1, depositAmount);
-            statement.executeUpdate();
-            connection.close();
+            String retriveAccID = "SELECT accountID FROM account WHERE customerID = ? AND accountTypeID = 1";
+            statement = connection.prepareStatement(retriveAccID);
+            statement.setInt(1, customerID);
+            accIDResultSet = statement.executeQuery();
+    
+            if (accIDResultSet.next()) {
+                int accountID = accIDResultSet.getInt("accountID");
+                Transaction transaction = new Transaction(accountID, customerID, depositAmount, "deposit");
+                transaction.recordTransaction();
+                // Perform any necessary operations with the transaction object
+            }
         } catch (SQLException ex) {
             ex.printStackTrace();
+        } finally {
+            try {
+                if (accIDResultSet != null) {
+                    accIDResultSet.close();
+                }
+                if (statement != null) {
+                    statement.close();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
+    
 
     private class WithdrawButtonListener implements ActionListener {
         @Override
@@ -134,14 +146,17 @@ public class WithdrawOrDeposit extends JPanel {
 
             try {
                 double amount = Double.parseDouble(withdrawAmount);
-                double savingsBalance = retrieveSavingsFromDatabase();
+                if(amount<0){
+                    throw new NumberFormatException();
+                }
+                double savingsBalance = retrieveSavingsFromDatabase(customerID);
 
                 if (amount > savingsBalance) {
                     JOptionPane.showMessageDialog(null, "Insufficient funds. Cannot withdraw amount.", "Error",
                             JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                updateSavingsInDatabase(-amount);
+                updateSavingsInDatabase(-amount,customerID);
                 JOptionPane.showMessageDialog(null, "Withdraw Success!", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(null, "Invalid withdraw amount", "Error", JOptionPane.ERROR_MESSAGE);
@@ -153,7 +168,7 @@ public class WithdrawOrDeposit extends JPanel {
     private class OkButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            SavingsMenu savingMenuPanel = new SavingsMenu();
+            SavingsMenu savingMenuPanel = new SavingsMenu(customerID);
             removeAll();
             setLayout(new BorderLayout());
             add(savingMenuPanel, BorderLayout.CENTER);

@@ -22,6 +22,7 @@ public class SavingsMenu extends JPanel {
         setBackground(Color.decode("#5cbfe9"));
         
         this.customerID = customerID;
+        // System.out.print(this.customerID);
         navBar = new NavBar();
         add(navBar, BorderLayout.WEST);
 
@@ -70,13 +71,13 @@ public class SavingsMenu extends JPanel {
         }
 
         // Retrieve savings from the database and update the balanceTextArea
-        retrieveSavingsFromDatabase();
+        retrieveSavingsFromDatabase(customerID);
     }
 
     private class WithdrawOrDepositButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            WithdrawOrDeposit withdrawOrDepositPanel = new WithdrawOrDeposit();
+            WithdrawOrDeposit withdrawOrDepositPanel = new WithdrawOrDeposit(customerID);
             removeAll();
             setLayout(new BorderLayout());
             add(withdrawOrDepositPanel, BorderLayout.CENTER);
@@ -88,7 +89,7 @@ public class SavingsMenu extends JPanel {
     private class SendButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            SendMoney sendMoneyPanel = new SendMoney();
+            SendMoney sendMoneyPanel = new SendMoney(customerID);
             removeAll();
             setLayout(new BorderLayout());
             add(sendMoneyPanel, BorderLayout.CENTER);
@@ -152,13 +153,14 @@ public class SavingsMenu extends JPanel {
         }
     }
 
-    private void retrieveSavingsFromDatabase() {
+    private void retrieveSavingsFromDatabase(int customerID) {
         try {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT savings FROM account WHERE ? = 1");
-            
+            Connection connection = DriverManager.getConnection(dbUrl, username, password);
+            PreparedStatement statement = connection.prepareStatement("SELECT currentBalance FROM account_balance_view WHERE accountTypeID = 1 AND customerID = ?");
+            statement.setInt(1, customerID);
+            ResultSet resultSet =statement.executeQuery();
             if (resultSet.next()) {
-                double savings = resultSet.getDouble("savings");
+                double savings = resultSet.getDouble("currentBalance");
                 balanceTextArea.setText("\n              Savings Balance: \n"
                         + "                      " + savings);
             }

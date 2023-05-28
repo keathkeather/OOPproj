@@ -1,22 +1,26 @@
 import javax.swing.*;
+
+import com.mysql.cj.protocol.Resultset;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
 
 public class SendMoney extends JPanel {
     private Rounded.RoundedButton sendButton, cancelButton;
-    private Rounded.RoundedTextField amountTextField, receiverIdTextField;
+    private Rounded.RoundedTextField amountTextField, receiverEmailTextField;
     private JPanel mainPanel;
     private JLabel sendMoneyDetailsLabel;
     private Font labelFont;
     private Connection connection;
     private NavBar navBar;
 
-    private String dbUrl = "jdbc:mysql://localhost:3306/oop";
+    private String dbUrl = "jdbc:mysql://localhost:3306/oopproject";
     private String username = "root";
     private String password = "";
-
-    public SendMoney() {
+    private int customerID;
+    public SendMoney(int customerID) {
+        this.customerID = customerID;
         setLayout(new BorderLayout());
         setBackground(Color.decode("#5cbfe9"));
 
@@ -50,20 +54,20 @@ public class SendMoney extends JPanel {
 
         gbc.gridx = 0;
         gbc.gridy = 2;
-        mainPanel.add(new JLabel("Receiver ID:"), gbc);
+        mainPanel.add(new JLabel("Receiver Email:"), gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 2;
-        receiverIdTextField = new Rounded.RoundedTextField(20, 20);
-        receiverIdTextField.setPreferredSize(new Dimension(200, 25));
-        mainPanel.add(receiverIdTextField, gbc);
+        receiverEmailTextField = new Rounded.RoundedTextField(20, 20);
+        receiverEmailTextField.setPreferredSize(new Dimension(200, 25));
+        mainPanel.add(receiverEmailTextField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 2;
         sendButton = new Rounded.RoundedButton("Send", 10);
         sendButton.setPreferredSize(new Dimension(100, 30));
-        sendButton.addActionListener(new SendButtonListener());
+
         mainPanel.add(sendButton, gbc);
 
         gbc.gridx = 0;
@@ -83,78 +87,84 @@ public class SendMoney extends JPanel {
             JOptionPane.showMessageDialog(null, "Error connecting to the database.", "Database Error",
                     JOptionPane.ERROR_MESSAGE);
         }
-    }
+        sendButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String strAmount = amountTextField.getText();
+                Double amount = Double.parseDouble(strAmount);
 
-    private class SendButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String amountStr = amountTextField.getText();
-            String receiverId = receiverIdTextField.getText();
-            String senderId = getLoggedInCustomerId(); // Retrieve the ID of the logged-in customer
-
-            try {
-                // Check if sender's savings are sufficient
-                PreparedStatement senderStatement = connection
-                        .prepareStatement("SELECT savings FROM account WHERE customerID = ? AND accountType = 1");
-                senderStatement.setString(1, senderId);
-                ResultSet senderResultSet = senderStatement.executeQuery();
-
-                if (senderResultSet.next()) {
-                    double senderSavings = senderResultSet.getDouble("savings");
-                    double amount = Double.parseDouble(amountStr);
-
-                    if (senderSavings >= amount) {
-                        // Deduct from sender's savings
-                        double senderNewSavings = senderSavings - amount;
-                        PreparedStatement senderUpdateStatement = connection
-                                .prepareStatement(
-                                        "UPDATE account SET savings = ? WHERE customerID = ? AND accountType = 1");
-                        senderUpdateStatement.setDouble(1, senderNewSavings);
-                        senderUpdateStatement.setString(2, senderId);
-                        senderUpdateStatement.executeUpdate();
-
-                        // Add to receiver's savings
-                        PreparedStatement receiverStatement = connection
-                                .prepareStatement(
-                                        "SELECT savings FROM account WHERE customerID = ? AND accountType = 1");
-                        receiverStatement.setString(1, receiverId);
-                        ResultSet receiverResultSet = receiverStatement.executeQuery();
-
-                        if (receiverResultSet.next()) {
-                            double receiverSavings = receiverResultSet.getDouble("savings");
-                            double receiverNewSavings = receiverSavings + amount;
-
-                            PreparedStatement receiverUpdateStatement = connection
-                                    .prepareStatement(
-                                            "UPDATE account SET savings = ? WHERE customerID = ? AND accountType = 1");
-                            receiverUpdateStatement.setDouble(1, receiverNewSavings);
-                            receiverUpdateStatement.setString(2, receiverId);
-                            receiverUpdateStatement.executeUpdate();
-
-                            JOptionPane.showMessageDialog(null, "Amount sent successfully!");
-
-                            amountTextField.setText("");
-                            receiverIdTextField.setText("");
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Receiver ID not found!");
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Insufficient balance!");
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(null, "Sender ID not found!");
+                if (amount <= 0) {
+                    JOptionPane.showMessageDialog(null, "Invalid amount.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
+
+                String receiverEmail = receiverEmailTextField.getText();
+                if (receiverEmail.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Receiver email is required.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                try {
+                    // Get the customer ID based on the receiver's email
+                    
+                    String query = "SELECT customerID FROM customer WHERE emailAddress = ?";
+                    PreparedStatement statement = connection.prepareStatement(query);
+                    statement.setString(1, receiverEmail);
+                    ResultSet result = statement.executeQuery();
+
+                    if (result.next()) {
+                        int receiverID = result.getInt("customerID");
+                        getAccountID accID = new getAccountID(receiverID);
+                        int receiverAccountID = accID.getID();
+                        getAccountID senderID =new getAccountID(customerID);
+                        int accountID = senderID.getID();
+                        getAccBalance accBal = new getAccBalance(customerID);
+                        Double balance = accBal.getBalance();
+                        if(amount<0){
+                            JOptionPane.showMessageDialog(null, "Error invalid amount.", "ERROR",JOptionPane.INFORMATION_MESSAGE);
+                            throw new NumberFormatException();
+                        }
+                        if(balance<amount){
+                            JOptionPane.showMessageDialog(null, "Insufficient Funds", "ERROR",JOptionPane.INFORMATION_MESSAGE);
+                            throw new NumberFormatException();
+                        }
+
+                        // Transfer the amount from the sender to the receiver
+                        Transaction receiverTransaction = new Transaction(receiverAccountID,receiverID,amount,"Funds Transferred to "+ receiverEmail);
+                        receiverTransaction.recordTransaction();
+                        Double newAmount = amount*-1;
+                        System.out.print(newAmount);
+                        Transaction transaction = new Transaction(accountID,customerID,newAmount,"Funds Sent to "+receiverEmail);
+                        transaction.recordTransaction();
+                        JOptionPane.showMessageDialog(null, "Money sent successfully.", "Success",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                        
+                        
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Receiver email not found.", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Error executing the query.", "Database Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
             }
-        }
+        });
+
+
+
+
     }
+
+   
 
     private class CancelButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             // Create and display the SavingsMenu panel
-            SavingsMenu savingMenuPanel = new SavingsMenu();
+            SavingsMenu savingMenuPanel = new SavingsMenu(customerID);
             removeAll(); // Remove all components from the current panel
             setLayout(new BorderLayout()); // Set the desired layout for the panel
             add(savingMenuPanel, BorderLayout.CENTER);

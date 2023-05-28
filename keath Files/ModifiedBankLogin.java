@@ -2,12 +2,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
@@ -143,30 +140,32 @@ public class ModifiedBankLogin extends JFrame {
             }
         });
         loginButton.addActionListener(new ActionListener() {
-            
             @Override
-            public void actionPerformed(ActionEvent e){
+            public void actionPerformed(ActionEvent e) {
                 String userName = accountNumberField.getText();
-                char[] passwordchar = passwordField.getPassword();
-                String password = new String(passwordchar);
-
+                char[] passwordChars = passwordField.getPassword();
+                String password = new String(passwordChars);
+        
+                if (userName.isEmpty() || password.isEmpty()) {
+                    JOptionPane.showMessageDialog(ModifiedBankLogin.this, "Please enter username and password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+        
                 checkLogin Check = new checkLogin();
-                int CustomerID = Check.CheckLogin(userName,password);
-
-                if(CustomerID!=-1){
-                    SavingsMenu savingsMenu = new SavingsMenu(CustomerID);
+                int customerID = Check.CheckLogin(userName, password);
+        
+                if (customerID != -1) {
+                    SavingsMenu savingsMenu = new SavingsMenu(customerID);
                     mainPanel.removeAll(); // Remove existing components from mainPanel
                     mainPanel.add(banknameLabel, BorderLayout.NORTH);
                     mainPanel.add(savingsMenu, BorderLayout.CENTER); // Add SavingsMenu JPanel to mainPanel
                     mainPanel.revalidate();
-
-                }
-                else{
+                } else {
                     JOptionPane.showMessageDialog(ModifiedBankLogin.this, "Invalid username or password", "Login Failed", JOptionPane.ERROR_MESSAGE);
                 }
-
             }
         });
+        
         
 }
 

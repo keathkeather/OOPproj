@@ -1,16 +1,4 @@
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import javax.swing.border.EmptyBorder;
-import java.awt.Insets;
-import java.awt.Dimension;
+
 import javax.swing.*;
 import java.sql.*;
 
@@ -43,32 +31,50 @@ class registerUser extends JPanel {
                     }
                 }
             }
-
-            // Create SQL statement
-            String sql = "INSERT INTO customer (username, password, firstName, lastName, middleInitial, province, zipcode, emailAddress, contactNumber, birthday) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                // Set parameter values
-                statement.setString(1, username);
-                statement.setString(2, password);
-                statement.setString(3, firstName);
-                statement.setString(4, lastName);
-                statement.setString(5, middleInitial);
-                statement.setString(6, province);
-                statement.setString(7, zipcode);
-                statement.setString(8, emailAddress);
-                statement.setString(9, contactNumber);
-                statement.setString(10, birthday);
-
-                // Execute the statement
-                int rowsInserted = statement.executeUpdate();
-                System.out.print(rowsInserted);
-
+        
+            // Create SQL statement to insert into customer table
+            String insertCustomerSql = "INSERT INTO customer (username, password, firstName, lastName, middleInitial, province, zipcode, emailAddress, contactNumber, birthday) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement insertCustomerStatement = connection.prepareStatement(insertCustomerSql, Statement.RETURN_GENERATED_KEYS)) {
+                // Set parameter values for customer table
+                insertCustomerStatement.setString(1, username);
+                insertCustomerStatement.setString(2, password);
+                insertCustomerStatement.setString(3, firstName);
+                insertCustomerStatement.setString(4, lastName);
+                insertCustomerStatement.setString(5, middleInitial);
+                insertCustomerStatement.setString(6, province);
+                insertCustomerStatement.setString(7, zipcode);
+                insertCustomerStatement.setString(8, emailAddress);
+                insertCustomerStatement.setString(9, contactNumber);
+                insertCustomerStatement.setString(10, birthday);
+        
+                // Execute the statement and retrieve the generated customer ID
+                int rowsInserted = insertCustomerStatement.executeUpdate();
+                if (rowsInserted > 0) {
+                    try (ResultSet generatedKeys = insertCustomerStatement.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            int customerId = generatedKeys.getInt(1);
+                            System.out.println("Customer ID: " + customerId);
+        
+                            // Create SQL statement to insert into account table
+                            String insertAccountSql = "INSERT INTO account (customerID) VALUES (?)";
+                            try (PreparedStatement insertAccountStatement = connection.prepareStatement(insertAccountSql)) {
+                                // Set parameter value for account table
+                                insertAccountStatement.setInt(1, customerId);
+        
+                                // Execute the statement
+                                int rowsInsertedAccount = insertAccountStatement.executeUpdate();
+                                System.out.println("Rows inserted into account table: " + rowsInsertedAccount);
+                            }
+        
+                            return true;
+                        }
+                    }
+                }
                 return rowsInserted > 0; // True if at least one row was inserted
             }
-        } catch (SQLException ex) {
+        }catch (SQLException ex) {
             ex.printStackTrace();
             return false;
         }
     }
 }
-
