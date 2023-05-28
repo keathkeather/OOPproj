@@ -3,7 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
 
-public class SavingsMenu extends JPanel {
+public class tempCodeRunnerFile extends JPanel {
     private Rounded.RoundedButton withdrawOrDepositButton, sendButton, closeAccountButton;
     private Rounded.RoundedTextArea balanceTextArea;
     private JPanel mainPanel;
@@ -17,12 +17,12 @@ public class SavingsMenu extends JPanel {
     private String password = "";
     private int customerID;
 
-    public SavingsMenu(int customerID) {
+    public tempCodeRunnerFile(int customerID) {
         setLayout(new BorderLayout());
         setBackground(Color.decode("#5cbfe9"));
-        
+
         this.customerID = customerID;
-        
+
         mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBackground(Color.decode("#5cbfe9"));
 
@@ -133,7 +133,8 @@ public class SavingsMenu extends JPanel {
 
         private boolean deleteSavingsAccountEntry() {
             try {
-                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/oopproject", "root", "");
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/oopproject", "root",
+                        "");
 
                 String query = "DELETE FROM account WHERE accountType = 1";
                 Statement statement = connection.createStatement();
@@ -158,9 +159,10 @@ public class SavingsMenu extends JPanel {
     private void retrieveSavingsFromDatabase(int customerID) {
         try {
             Connection connection = DriverManager.getConnection(dbUrl, username, password);
-            PreparedStatement statement = connection.prepareStatement("SELECT currentBalance FROM account_balance_view WHERE accountTypeID = 1 AND customerID = ?");
+            PreparedStatement statement = connection.prepareStatement(
+                    "SELECT currentBalance FROM account_balance_view WHERE accountTypeID = 1 AND customerID = ?");
             statement.setInt(1, customerID);
-            ResultSet resultSet =statement.executeQuery();
+            ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 double savings = resultSet.getDouble("currentBalance");
                 balanceTextArea.setText("\n              Savings Balance: \n"

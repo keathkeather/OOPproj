@@ -1,4 +1,3 @@
-package com.mycompany.bankLoan;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,14 +11,13 @@ public class PayLoan extends JPanel {
     private String formattedBalance;
     private JPanel contentPanel;
     private NavBar navBar;
+    private int customerID;
 
     GridBagConstraints gbc;
 
-    public PayLoan() {
+    public PayLoan(int customerID) {
         setLayout(new BorderLayout());
-
-        navBar = new NavBar();
-        add(navBar, BorderLayout.WEST);
+        this.customerID = customerID;
 
         contentPanel = new JPanel(new GridBagLayout());
         contentPanel.setBackground(Color.decode("#5cbfe9"));
@@ -70,7 +68,7 @@ public class PayLoan extends JPanel {
 
     private void retrieveLoanDetails() {
         try {
-            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/oop", "root", "");
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/oopproject", "root", "");
 
             String sql = "SELECT remainingBal, monthlyDue FROM loan";
             PreparedStatement statement = conn.prepareStatement(sql);
@@ -91,9 +89,9 @@ public class PayLoan extends JPanel {
 
     private void updateSavings(double amount) {
         try {
-            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/oop", "root", "");
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/oopproject", "root", "");
 
-            String sql = "UPDATE account SET savings = savings - ? WHERE accountType = 2";
+            String sql = "UPDATE account SET currentBal = currentBal - ? WHERE accountTypeID = 1";
             PreparedStatement statement = conn.prepareStatement(sql);
             statement.setDouble(1, amount);
 
@@ -108,7 +106,7 @@ public class PayLoan extends JPanel {
 
     private void updateRemainingBal(double newLoanBal) {
         try {
-            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/oop", "root", "");
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/oopproject", "root", "");
 
             String sql = "UPDATE loan SET remainingBal = ?";
             PreparedStatement statement = conn.prepareStatement(sql);
@@ -132,7 +130,7 @@ public class PayLoan extends JPanel {
             updateRemainingBal(remainingBal - monthlyDue);
 
             SwingUtilities.invokeLater(() -> {
-                LoanMenu loanMenu = new LoanMenu();
+                LoanMenu loanMenu = new LoanMenu(customerID);
                 JFrame currentWindow = (JFrame) SwingUtilities.getWindowAncestor(PayLoan.this);
                 JPanel newContentPane = new JPanel();
                 newContentPane.setLayout(new BorderLayout());

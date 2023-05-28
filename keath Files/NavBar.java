@@ -1,5 +1,4 @@
 
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -7,7 +6,8 @@ import java.awt.event.ActionListener;
 
 public class NavBar extends JPanel {
     private JPanel mainPanel;
-    public NavBar(JPanel mainPanel,int customerID) {
+
+    public NavBar(JPanel mainPanel, int customerID) {
         setBackground(Color.decode("#005176"));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
@@ -18,8 +18,8 @@ public class NavBar extends JPanel {
         titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 40, 0));
         add(titleLabel);
 
-        String[] navLabels = {"Client", "Savings", "Checking Accounts", "Transactions",
-                "Loans", "Credit Cards", "Bill Payments", "Investments"};
+        String[] navLabels = { "Client", "Savings", "Checking Accounts", "Transactions",
+                "Loans", "Credit Cards", "Bill Payments", "Investments" };
 
         JPanel referenceBox = new JPanel();
         referenceBox.setLayout(new BorderLayout());
@@ -54,30 +54,43 @@ public class NavBar extends JPanel {
                     }
                 });
             }
-            else if (label.equals("Credit Cards")) {
-                navButton.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        mainPanel.removeAll(); // Remove any existing components from the main panel
-                        mainPanel.add(new creditCard(customerID)); // Add the creditCard panel to the main panel
-                        mainPanel.revalidate(); // Revalidate the main panel to update the layout
-                        mainPanel.repaint(); // Repaint the main panel
-                    }
-                });
-            }
-            else if (label.equals("Transactions")) {
-                navButton.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        mainPanel.removeAll(); // Remove any existing components from the main panel
-                        mainPanel.add(new creditCard(customerID)); // Add the creditCard panel to the main panel
-                        mainPanel.revalidate(); // Revalidate the main panel to update the layout
-                        mainPanel.repaint(); // Repaint the main panel
-                    }
-                });
-            }
 
-            
+            else if (label.equals("Loans")) {
+                navButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        mainPanel.removeAll(); // Remove any existing components from the main panel
+                        mainPanel.add(new LoanMenu(customerID)); // Add the creditCard panel to the main panel
+                        mainPanel.revalidate(); // Revalidate the main panel to update the layout
+                        mainPanel.repaint(); // Repaint the main panel
+                    }
+                });
+            }
+            // else if (label.equals("Credit Cards")) {
+            // navButton.addActionListener(new ActionListener() {
+            // @Override
+            // public void actionPerformed(ActionEvent e) {
+            // mainPanel.removeAll(); // Remove any existing components from the main panel
+            // mainPanel.add(new creditCard(customerID)); // Add the creditCard panel to the
+            // main panel
+            // mainPanel.revalidate(); // Revalidate the main panel to update the layout
+            // mainPanel.repaint(); // Repaint the main panel
+            // }
+            // });
+            // }
+            // else if (label.equals("Transactions")) {
+            // navButton.addActionListener(new ActionListener() {
+            // @Override
+            // public void actionPerformed(ActionEvent e) {
+            // mainPanel.removeAll(); // Remove any existing components from the main panel
+            // mainPanel.add(new creditCard(customerID)); // Add the creditCard panel to the
+            // main panel
+            // mainPanel.revalidate(); // Revalidate the main panel to update the layout
+            // mainPanel.repaint(); // Repaint the main panel
+            // }
+            // });
+            // }
+
             else if (label.equals("Bill Payments")) {
                 navButton.addActionListener(new ActionListener() {
                     @Override

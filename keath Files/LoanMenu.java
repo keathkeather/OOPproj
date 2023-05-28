@@ -1,7 +1,5 @@
 // Bataluna, Main Loan Page
 
-package com.mycompany.bankLoan;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -13,14 +11,13 @@ public class LoanMenu extends JPanel {
     private JPanel contentPanel, buttonPanel, buttonPanel2, textareaPanel;
     private JLabel loanInfoLabel;
     private NavBar navBar;
+    private int customerID;
 
     GridBagConstraints gbc;
 
-    public LoanMenu() {
+    public LoanMenu(int customerID) {
         setLayout(new BorderLayout());
-
-        navBar = new NavBar();
-        add(navBar, BorderLayout.WEST);
+        this.customerID = customerID;
 
         contentPanel = new JPanel(new GridBagLayout());
         contentPanel.setBackground(Color.decode("#5cbfe9"));
@@ -39,7 +36,7 @@ public class LoanMenu extends JPanel {
         buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         buttonPanel.setOpaque(false);
 
-        moreDetailsButton = new Rounded.RoundedButton("More Details", 10);
+        moreDetailsButton = new Rounded.RoundedButton("Loan Details", 10);
         moreDetailsButton.addActionListener(new MoreDetailsButtonListener());
         buttonPanel.add(moreDetailsButton);
         moreDetailsButton.setPreferredSize(new Dimension(130, 30));
@@ -52,24 +49,24 @@ public class LoanMenu extends JPanel {
         gbc.gridwidth = 1;
         contentPanel.add(buttonPanel, gbc);
 
-        textareaPanel = new JPanel(new BorderLayout());
-        textareaPanel.setOpaque(false);
+        // textareaPanel = new JPanel(new BorderLayout());
+        // textareaPanel.setOpaque(false);
 
-        remainingBalField = new Rounded.RoundedTextArea(4, 20, 20, 5);
-        remainingBalField.setEditable(false);
-        remainingBalField.setFont(new Font("Arial", Font.BOLD, 16));
-        remainingBalField.setLineWrap(true);
-        remainingBalField.setWrapStyleWord(true);
+        // remainingBalField = new Rounded.RoundedTextArea(4, 20, 20, 5);
+        // remainingBalField.setEditable(false);
+        // remainingBalField.setFont(new Font("Arial", Font.BOLD, 16));
+        // remainingBalField.setLineWrap(true);
+        // remainingBalField.setWrapStyleWord(true);
 
-        textareaPanel.add(remainingBalField, BorderLayout.CENTER);
+        // textareaPanel.add(remainingBalField, BorderLayout.CENTER);
 
-        gbc.gridy++;
-        gbc.gridx = 0;
-        gbc.gridwidth = 3;
-        gbc.insets = new Insets(10, -100, 10, -10);
-        contentPanel.add(textareaPanel, gbc);
+        // gbc.gridy++;
+        // gbc.gridx = 0;
+        // gbc.gridwidth = 3;
+        // gbc.insets = new Insets(10, -100, 10, -10);
+        // contentPanel.add(textareaPanel, gbc);
 
-        displayRemainingBalance();
+        // displayRemainingBalance();
 
         buttonPanel2 = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         buttonPanel2.setOpaque(false);
@@ -102,12 +99,17 @@ public class LoanMenu extends JPanel {
         contentPanel.add(buttonPanel2, gbc);
 
         add(contentPanel, BorderLayout.CENTER);
+        if (navBar == null) {
+            navBar = new NavBar(contentPanel, customerID);
+            // add(navBar, BorderLayout.WEST);
+        }
+
     }
 
     public void displayRemainingBalance() {
         try {
 
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/oop", "root", "");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/oopproject", "root", "");
             Statement statement = connection.createStatement();
 
             ResultSet resultSet = statement.executeQuery("SELECT remainingBal FROM loan");
@@ -138,22 +140,20 @@ public class LoanMenu extends JPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/oop", "root", "");
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/oopproject", "root",
+                        "");
 
                 Statement statement = connection.createStatement();
                 ResultSet resultSet = statement.executeQuery("SELECT remainingBal FROM loan");
 
-                // Retrieve the current accountID from the account table
-                int currentCustomerID = getCurrentCustomerID(connection);
-
                 // Check if the current accountID exists in the loan table
-                boolean hasActiveLoan = checkActiveLoan(connection, currentCustomerID);
+                boolean hasActiveLoan = checkActiveLoan(connection, customerID);
 
                 if (!resultSet.next()) {
                     // No entry in the database, redirect to BankLoan so a loan can be applied
                     JFrame parentFrame = (JFrame) SwingUtilities.getRoot(LoanMenu.this);
                     parentFrame.getContentPane().removeAll();
-                    parentFrame.getContentPane().add(new BankLoan(), BorderLayout.CENTER);
+                    parentFrame.getContentPane().add(new BankLoan(customerID), BorderLayout.CENTER);
                     parentFrame.revalidate();
                     parentFrame.repaint();
                 } else {
@@ -169,13 +169,13 @@ public class LoanMenu extends JPanel {
 
                         JFrame parentFrame = (JFrame) SwingUtilities.getRoot(LoanMenu.this);
                         parentFrame.getContentPane().removeAll();
-                        parentFrame.getContentPane().add(new BankLoan(), BorderLayout.CENTER);
+                        parentFrame.getContentPane().add(new BankLoan(customerID), BorderLayout.CENTER);
                         parentFrame.revalidate();
                         parentFrame.repaint();
                     } else {
                         JFrame parentFrame = (JFrame) SwingUtilities.getRoot(LoanMenu.this);
                         parentFrame.getContentPane().removeAll();
-                        parentFrame.getContentPane().add(new BankLoan(), BorderLayout.CENTER);
+                        parentFrame.getContentPane().add(new BankLoan(customerID), BorderLayout.CENTER);
                         parentFrame.revalidate();
                         parentFrame.repaint();
                     }
@@ -184,23 +184,6 @@ public class LoanMenu extends JPanel {
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
-        }
-
-        private int getCurrentCustomerID(Connection connection) throws SQLException {
-            int customerID = -1; // Default value if accountID is not found
-
-            String query = "SELECT customerID FROM account";
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(query);
-
-            if (resultSet.next()) {
-                customerID = resultSet.getInt("customerID");
-            }
-
-            resultSet.close();
-            statement.close();
-
-            return customerID;
         }
 
         private boolean checkActiveLoan(Connection connection, int customerID) throws SQLException {
@@ -220,7 +203,7 @@ public class LoanMenu extends JPanel {
 
     private void deleteLoanRecords() {
         try {
-            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/oop", "root", "");
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/oopproject", "root", "");
 
             String sql = "DELETE FROM loan";
             PreparedStatement statement = conn.prepareStatement(sql);
@@ -238,7 +221,8 @@ public class LoanMenu extends JPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/oop", "root", "");
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/oopproject", "root",
+                        "");
                 Statement statement = connection.createStatement();
 
                 ResultSet resultSet = statement.executeQuery("SELECT remainingBal FROM loan");
@@ -254,7 +238,7 @@ public class LoanMenu extends JPanel {
                         // Remaining balance > 0, paid, redirect to PayLoan page
                         JFrame parentFrame = (JFrame) SwingUtilities.getRoot(LoanMenu.this);
                         parentFrame.getContentPane().removeAll();
-                        parentFrame.getContentPane().add(new PayLoan(), BorderLayout.CENTER);
+                        parentFrame.getContentPane().add(new PayLoan(customerID), BorderLayout.CENTER);
                         parentFrame.revalidate();
                         parentFrame.repaint();
                     } else {

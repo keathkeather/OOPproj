@@ -1,6 +1,6 @@
 import javax.swing.*;
 
-import com.mysql.cj.protocol.Resultset;
+//import com.mysql.cj.protocol.Resultset;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -19,12 +19,11 @@ public class SendMoney extends JPanel {
     private String username = "root";
     private String password = "";
     private int customerID;
+
     public SendMoney(int customerID) {
         this.customerID = customerID;
         setLayout(new BorderLayout());
         setBackground(Color.decode("#5cbfe9"));
-
-        
 
         labelFont = new Font("Arial Rounded MT Bold", Font.PLAIN, 16);
 
@@ -106,7 +105,7 @@ public class SendMoney extends JPanel {
 
                 try {
                     // Get the customer ID based on the receiver's email
-                    
+
                     String query = "SELECT customerID FROM customer WHERE emailAddress = ?";
                     PreparedStatement statement = connection.prepareStatement(query);
                     statement.setString(1, receiverEmail);
@@ -116,30 +115,33 @@ public class SendMoney extends JPanel {
                         int receiverID = result.getInt("customerID");
                         getAccountID accID = new getAccountID(receiverID);
                         int receiverAccountID = accID.getID();
-                        getAccountID senderID =new getAccountID(customerID);
+                        getAccountID senderID = new getAccountID(customerID);
                         int accountID = senderID.getID();
                         getAccBalance accBal = new getAccBalance(customerID);
                         Double balance = accBal.getBalance();
-                        if(amount<0){
-                            JOptionPane.showMessageDialog(null, "Error invalid amount.", "ERROR",JOptionPane.INFORMATION_MESSAGE);
+                        if (amount < 0) {
+                            JOptionPane.showMessageDialog(null, "Error invalid amount.", "ERROR",
+                                    JOptionPane.INFORMATION_MESSAGE);
                             throw new NumberFormatException();
                         }
-                        if(balance<amount){
-                            JOptionPane.showMessageDialog(null, "Insufficient Funds", "ERROR",JOptionPane.INFORMATION_MESSAGE);
+                        if (balance < amount) {
+                            JOptionPane.showMessageDialog(null, "Insufficient Funds", "ERROR",
+                                    JOptionPane.INFORMATION_MESSAGE);
                             throw new NumberFormatException();
                         }
 
                         // Transfer the amount from the sender to the receiver
-                        Transaction receiverTransaction = new Transaction(receiverAccountID,receiverID,amount,"Funds Transferred to "+ receiverEmail);
+                        Transaction receiverTransaction = new Transaction(receiverAccountID, receiverID, amount,
+                                "Funds Transferred to " + receiverEmail);
                         receiverTransaction.recordTransaction();
-                        Double newAmount = amount*-1;
+                        Double newAmount = amount * -1;
                         System.out.print(newAmount);
-                        Transaction transaction = new Transaction(accountID,customerID,newAmount,"Funds Sent to "+receiverEmail);
+                        Transaction transaction = new Transaction(accountID, customerID, newAmount,
+                                "Funds Sent to " + receiverEmail);
                         transaction.recordTransaction();
                         JOptionPane.showMessageDialog(null, "Money sent successfully.", "Success",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        
-                        
+                                JOptionPane.INFORMATION_MESSAGE);
+
                     } else {
                         JOptionPane.showMessageDialog(null, "Receiver email not found.", "Error",
                                 JOptionPane.ERROR_MESSAGE);
@@ -152,22 +154,19 @@ public class SendMoney extends JPanel {
             }
         });
 
-
-        navBar = new NavBar(mainPanel,customerID);
+        navBar = new NavBar(mainPanel, customerID);
         add(navBar, BorderLayout.WEST);
 
     }
-
-   
 
     private class CancelButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             // Create and display the SavingsMenu panel
-            SavingsMenu savingMenuPanel = new SavingsMenu(customerID);
+            // SavingsMenu savingMenuPanel = new SavingsMenu(customerID);
             removeAll(); // Remove all components from the current panel
             setLayout(new BorderLayout()); // Set the desired layout for the panel
-            add(savingMenuPanel, BorderLayout.CENTER);
+            // add(savingMenuPanel, BorderLayout.CENTER);
             revalidate();
             repaint();
         }

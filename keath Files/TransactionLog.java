@@ -31,7 +31,7 @@ public class TransactionLog extends JFrame {
         JScrollPane scrollPane = new JScrollPane(logTable);
 
         getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(new NavBar(customerInt), BorderLayout.WEST);
+        // getContentPane().add(new NavBar(customerInt), BorderLayout.WEST);
         getContentPane().add(scrollPane);
 
         // Fetch and display the transaction log
@@ -44,30 +44,31 @@ public class TransactionLog extends JFrame {
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
-    
+
         try {
             // Establish a database connection
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/oopproject", "root", "");
-    
-            // Prepare the SQL statement to fetch transaction data with account and account type details
+
+            // Prepare the SQL statement to fetch transaction data with account and account
+            // type details
             String sql = "SELECT tl.transactionDate, tl.transactionAmount, tl.TransactionDesc, at.accountTypeDesc " +
                     "FROM transactionlog tl " +
                     "JOIN account a ON tl.accountID = a.accountID " +
                     "JOIN accounttype at ON a.accountTypeID = at.accountTypeID " +
                     "WHERE tl.customerID = 2";
-    
+
             statement = connection.prepareStatement(sql);
-    
+
             // Execute the query
             resultSet = statement.executeQuery();
-    
+
             // Iterate over the result set and populate the table with transaction details
             while (resultSet.next()) {
                 String transactionDate = resultSet.getString("transactionDate");
                 double transactionAmount = resultSet.getDouble("transactionAmount");
                 String transactionDesc = resultSet.getString("TransactionDesc");
                 String accountTypeDesc = resultSet.getString("accountTypeDesc");
-    
+
                 // Determine the transaction type based on the account type description
                 String transactionType;
                 if (accountTypeDesc != null) {
@@ -81,10 +82,11 @@ public class TransactionLog extends JFrame {
                 } else {
                     transactionType = "Unknown";
                 }
-    
+
                 // Add a row to the table model with the transaction data
                 System.out.println(transactionType);
-                tableModel.addRow(new Object[]{transactionDate, transactionAmount, transactionDesc, transactionType});
+                tableModel
+                        .addRow(new Object[] { transactionDate, transactionAmount, transactionDesc, transactionType });
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -102,7 +104,6 @@ public class TransactionLog extends JFrame {
             }
         }
     }
-    
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {

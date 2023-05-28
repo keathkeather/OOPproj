@@ -1,4 +1,3 @@
-package AssignedFeature;
 
 import java.sql.*;
 
