@@ -24,8 +24,7 @@ public class SendMoney extends JPanel {
         setLayout(new BorderLayout());
         setBackground(Color.decode("#5cbfe9"));
 
-        navBar = new NavBar();
-        add(navBar, BorderLayout.WEST);
+        
 
         labelFont = new Font("Arial Rounded MT Bold", Font.PLAIN, 16);
 
@@ -154,7 +153,8 @@ public class SendMoney extends JPanel {
         });
 
 
-
+        navBar = new NavBar(mainPanel,customerID);
+        add(navBar, BorderLayout.WEST);
 
     }
 

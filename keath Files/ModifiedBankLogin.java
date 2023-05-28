@@ -140,32 +140,30 @@ public class ModifiedBankLogin extends JFrame {
             }
         });
         loginButton.addActionListener(new ActionListener() {
+            
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e){
                 String userName = accountNumberField.getText();
-                char[] passwordChars = passwordField.getPassword();
-                String password = new String(passwordChars);
-        
-                if (userName.isEmpty() || password.isEmpty()) {
-                    JOptionPane.showMessageDialog(ModifiedBankLogin.this, "Please enter username and password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-        
+                char[] passwordchar = passwordField.getPassword();
+                String password = new String(passwordchar);
+
                 checkLogin Check = new checkLogin();
-                int customerID = Check.CheckLogin(userName, password);
-        
-                if (customerID != -1) {
-                    SavingsMenu savingsMenu = new SavingsMenu(customerID);
+                int CustomerID = Check.CheckLogin(userName,password);
+
+                if(CustomerID!=-1){
+                    SavingsMenu savingsMenu = new SavingsMenu(CustomerID);
                     mainPanel.removeAll(); // Remove existing components from mainPanel
-                    mainPanel.add(banknameLabel, BorderLayout.NORTH);
+                    
                     mainPanel.add(savingsMenu, BorderLayout.CENTER); // Add SavingsMenu JPanel to mainPanel
                     mainPanel.revalidate();
-                } else {
+
+                }
+                else{
                     JOptionPane.showMessageDialog(ModifiedBankLogin.this, "Invalid username or password", "Login Failed", JOptionPane.ERROR_MESSAGE);
                 }
+
             }
         });
-        
         
 }
 

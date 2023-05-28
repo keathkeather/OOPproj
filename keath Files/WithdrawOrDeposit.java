@@ -20,8 +20,7 @@ public class WithdrawOrDeposit extends JPanel {
         setLayout(new BorderLayout());
         setBackground(Color.decode("#5cbfe9"));
 
-        navBar = new NavBar();
-        add(navBar, BorderLayout.WEST);
+       
 
         inputPanel = new JPanel(new GridBagLayout());
         inputPanel.setBackground(Color.decode("#5cbfe9"));
@@ -95,6 +94,10 @@ public class WithdrawOrDeposit extends JPanel {
             depositTextField.setText("");
             }
         });
+
+
+        navBar = new NavBar(inputPanel,customerID);
+        add(navBar, BorderLayout.WEST);
     }
 
     private double retrieveSavingsFromDatabase(int customerID) {
@@ -163,6 +166,7 @@ public class WithdrawOrDeposit extends JPanel {
             }
             withdrawTextField.setText("");
         }
+        
     }
 
     private class OkButtonListener implements ActionListener {

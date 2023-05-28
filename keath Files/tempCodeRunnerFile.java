@@ -1,176 +1,175 @@
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
 
+public class SavingsMenu extends JPanel {
+    private Rounded.RoundedButton withdrawOrDepositButton, sendButton, closeAccountButton;
+    private Rounded.RoundedTextArea balanceTextArea;
+    private JPanel mainPanel;
+    private Connection connection;
+    private NavBar navBar;
 
+    GridBagConstraints gbc;
 
-public class ModifiedBankLogin extends JFrame {
-    private RoundedTextField accountNumberField;
-    private RoundedPasswordField passwordField;
-    private RoundedButton loginButton;
-    private RoundedButton registerButton;
-    private JLabel accountNumberLabel;
-    private JLabel passwordLabel;
-    private JLabel banknameLabel;
-    private JLabel label;
-    private ModifiedRegistration modifiedRegistration;
+    private String dbUrl = "jdbc:mysql://localhost:3306/oopproject";
+    private String username = "root";
+    private String password = "";
+    private int customerID;
 
-    public ModifiedBankLogin() {
-        super("BankRupt");
+    public SavingsMenu(int customerID) {
+        setLayout(new BorderLayout());
+        setBackground(Color.decode("#5cbfe9"));
+        
+        this.customerID = customerID;
+        
+        mainPanel = new JPanel(new GridBagLayout());
+        mainPanel.setBackground(Color.decode("#5cbfe9"));
 
-        // create components
-        accountNumberField = new RoundedTextField(20, 10);
-        accountNumberField.setPreferredSize(new Dimension(200, 30));
-        passwordField = new RoundedPasswordField(20, 10);
-        passwordField.setPreferredSize(new Dimension(200, 30));
-        loginButton = new RoundedButton("Login", 10);
-        registerButton = new RoundedButton("Register", 10);
-        accountNumberLabel = new JLabel("Username:");
-        passwordLabel = new JLabel("Password:");
-        banknameLabel = new JLabel("Login now and Save Easier with UniBank");
-        label = new JLabel("No Account yet? Register now");
-
-        // set font for button and label
-        Font font = new Font("Roboto", Font.BOLD, 16);
-        Font font2 = new Font("Arial Rounded MT Bold", Font.BOLD, 40);
-        loginButton.setFont(font);
-        loginButton.setBackground(Color.decode("#4f93d2"));
-        loginButton.setForeground(Color.WHITE);
-        registerButton.setFont(font);
-        registerButton.setBackground(Color.decode("#4f93d2"));
-        registerButton.setForeground(Color.WHITE);
-        accountNumberLabel.setFont(font);
-        accountNumberLabel.setForeground(Color.WHITE);
-        passwordLabel.setFont(font);
-        passwordLabel.setForeground(Color.WHITE);
-        label.setFont(font);
-        label.setForeground(Color.WHITE);
-        banknameLabel.setFont(font2);
-        banknameLabel.setForeground(Color.WHITE);
-
-        // create panels
-        JPanel formPanel = new JPanel();
-        formPanel.setPreferredSize(new Dimension(500, 500));
-        formPanel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
+        gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.insets = new Insets(5, 5, 5, 50);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(10, 10, 10, 10);
 
-        formPanel.add(accountNumberLabel, gbc);
-        gbc.gridy = 1;
-        formPanel.add(passwordLabel, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        formPanel.add(accountNumberField, gbc);
-        gbc.gridy = 1;
-        formPanel.add(passwordField, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        formPanel.add(loginButton, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 3;
-        formPanel.add(label, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 4;
-        formPanel.add(registerButton, gbc);
+        balanceTextArea = new Rounded.RoundedTextArea(4, 17, 20, 5);
+        balanceTextArea.setFont(new Font("Arial", Font.BOLD, 16));
+        balanceTextArea.setEditable(false);
+        mainPanel.add(balanceTextArea, gbc);
 
-        // set the background color of the panels
-        formPanel.setBackground(Color.decode("#5cbfe9"));
+        gbc.gridy++;
+        withdrawOrDepositButton = new Rounded.RoundedButton("Withdraw or Deposit", 10);
+        withdrawOrDepositButton.setPreferredSize(new Dimension(200, 30));
+        withdrawOrDepositButton.addActionListener(new WithdrawOrDepositButtonListener());
+        gbc.anchor = GridBagConstraints.CENTER; // Set anchor to center
+        mainPanel.add(withdrawOrDepositButton, gbc);
 
-        // create image label
-        JLabel imageLabel = new JLabel();
-        ImageIcon imageIcon = new ImageIcon("C:/Users/keath/Desktop/OOPproj/OOPproj/src/pics/work.png"); // Set the path to your image file
-        imageLabel.setIcon(imageIcon);
+        gbc.gridy++;
+        sendButton = new Rounded.RoundedButton("Send Money", 10);
+        sendButton.setPreferredSize(new Dimension(100, 30));
+        sendButton.addActionListener(new SendButtonListener());
+        mainPanel.add(sendButton, gbc);
 
-        // create main panel to hold formPanel and imageLabel
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setPreferredSize(new Dimension(500, 500));
-        mainPanel.add(banknameLabel, BorderLayout.NORTH);
-        mainPanel.add(formPanel, BorderLayout.WEST);
-        mainPanel.add(imageLabel, BorderLayout.CENTER);
-        mainPanel.setBackground(Color.decode("#5cbfe9"));
-        mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        gbc.gridy++;
+        closeAccountButton = new Rounded.RoundedButton("Close Account", 10);
+        closeAccountButton.setPreferredSize(new Dimension(100, 30));
+        closeAccountButton.addActionListener(new CloseAccountButtonListener());
+        mainPanel.add(closeAccountButton, gbc);
 
-        // add main panel to frame
-        pack();
-        add(mainPanel);
+        add(mainPanel, BorderLayout.CENTER);
 
-        // set frame properties
-        setSize(1080, 720);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setVisible(true);
-        
-      
+        navBar = new NavBar(mainPanel, customerID);
+        add(navBar, BorderLayout.WEST);
 
-        registerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (modifiedRegistration == null) {
-                    modifiedRegistration = new ModifiedRegistration();
-                    JDialog dialog = new JDialog();
-                    dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-                    dialog.setContentPane(modifiedRegistration);
-                    dialog.setSize(720,720);
-                    // dialog.pack();
-                    dialog.setLocationRelativeTo(null);
-                    dialog.addWindowListener(new WindowAdapter() {
-                        @Override
-                        public void windowClosed(WindowEvent e) {
-                            modifiedRegistration = null;
-                        }
-                    });
-                    dialog.setVisible(true);
+        // establish database connection
+        try {
+            connection = DriverManager.getConnection(dbUrl, username, password);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error connecting to the database.", "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+
+        // Retrieve savings from the database and update the balanceTextArea
+        retrieveSavingsFromDatabase(customerID);
+    }
+
+    private class WithdrawOrDepositButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            WithdrawOrDeposit withdrawOrDepositPanel = new WithdrawOrDeposit(customerID);
+            removeAll();
+            setLayout(new BorderLayout());
+            add(withdrawOrDepositPanel, BorderLayout.CENTER);
+            // add(navBar, BorderLayout.WEST); // Add the NavBar back
+            revalidate();
+            repaint();
+        }
+    }
+
+    private class SendButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            SendMoney sendMoneyPanel = new SendMoney(customerID);
+            removeAll();
+            setLayout(new BorderLayout());
+            add(sendMoneyPanel, BorderLayout.CENTER);
+            // add(navBar, BorderLayout.WEST); // Add the NavBar back
+            revalidate();
+            repaint();
+        }
+    }
+
+    private class CloseAccountButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            int choice = JOptionPane.showOptionDialog(
+                    null,
+                    "Do you want to close your savings account permanently? This is irreversible.",
+                    "Confirmation",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.WARNING_MESSAGE,
+                    null,
+                    new String[] { "OK", "Cancel" },
+                    "OK");
+
+            if (choice == JOptionPane.OK_OPTION) {
+                boolean accountDeleted = deleteSavingsAccountEntry();
+                if (accountDeleted) {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Your savings account has been closed successfully.",
+                            "Account Closed",
+                            JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    modifiedRegistration.setVisible(true);
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Failed to close your savings account.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
-        });
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String userName = accountNumberField.getText();
-                char[] passwordChars = passwordField.getPassword();
-                String password = new String(passwordChars);
-        
-                if (userName.isEmpty() || password.isEmpty()) {
-                    JOptionPane.showMessageDialog(ModifiedBankLogin.this, "Please enter username and password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-        
-                checkLogin Check = new checkLogin();
-                int customerID = Check.CheckLogin(userName, password);
-        
-                if (customerID != -1) {
-                    SavingsMenu savingsMenu = new SavingsMenu(customerID);
-                    mainPanel.removeAll(); // Remove existing components from mainPanel
-                    mainPanel.add(banknameLabel, BorderLayout.NORTH);
-                    mainPanel.add(savingsMenu, BorderLayout.CENTER); // Add SavingsMenu JPanel to mainPanel
-                    mainPanel.revalidate();
-                } else {
-                    JOptionPane.showMessageDialog(ModifiedBankLogin.this, "Invalid username or password", "Login Failed", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-        
-}
+        }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new ModifiedBankLogin();
-        });
+        private boolean deleteSavingsAccountEntry() {
+            try {
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/oopproject", "root", "");
+
+                String query = "DELETE FROM account WHERE accountType = 1";
+                Statement statement = connection.createStatement();
+
+                int rowsAffected = statement.executeUpdate(query);
+
+                statement.close();
+                connection.close();
+
+                if (rowsAffected > 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+    }
+
+    private void retrieveSavingsFromDatabase(int customerID) {
+        try {
+            Connection connection = DriverManager.getConnection(dbUrl, username, password);
+            PreparedStatement statement = connection.prepareStatement("SELECT currentBalance FROM account_balance_view WHERE accountTypeID = 1 AND customerID = ?");
+            statement.setInt(1, customerID);
+            ResultSet resultSet =statement.executeQuery();
+            if (resultSet.next()) {
+                double savings = resultSet.getDouble("currentBalance");
+                balanceTextArea.setText("\n              Savings Balance: \n"
+                        + "                      " + savings);
+            }
+
+            connection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -6,7 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class NavBar extends JPanel {
-    public NavBar() {
+    private JPanel mainPanel;
+    public NavBar(JPanel mainPanel,int customerID) {
         setBackground(Color.decode("#005176"));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
@@ -17,17 +18,17 @@ public class NavBar extends JPanel {
         titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 40, 0));
         add(titleLabel);
 
-        String[] navLabels = {"Client", "Send/Receive", "Checking Accounts", "Transactions",
+        String[] navLabels = {"Client", "Savings", "Checking Accounts", "Transactions",
                 "Loans", "Credit Cards", "Bill Payments", "Investments"};
 
         JPanel referenceBox = new JPanel();
         referenceBox.setLayout(new BorderLayout());
         referenceBox.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         JLabel referenceLabel = new JLabel("Checking Accounts");
-        referenceLabel.setFont(new Font("Arial", Font.PLAIN, 14)); 
+        referenceLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         referenceBox.add(referenceLabel, BorderLayout.CENTER);
         Dimension referenceSize = referenceBox.getPreferredSize();
-        referenceSize.width += 35; 
+        referenceSize.width += 35;
 
         for (String label : navLabels) {
             JPanel navBox = new JPanel();
@@ -42,14 +43,63 @@ public class NavBar extends JPanel {
             navButton.setBackground(Color.decode("#4F93D2"));
             navButton.setBorderPainted(false);
             navButton.setFocusPainted(false);
-
-            if (label.equals("Credit Cards")) {
+            if (label.equals("Savings")) {
                 navButton.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
+                        mainPanel.removeAll(); // Remove any existing components from the main panel
+                        mainPanel.add(new SavingsMenu(customerID)); // Add the creditCard panel to the main panel
+                        mainPanel.revalidate(); // Revalidate the main panel to update the layout
+                        mainPanel.repaint(); // Repaint the main panel
+                    }
+                });
+            }
+            else if (label.equals("Credit Cards")) {
+                navButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        mainPanel.removeAll(); // Remove any existing components from the main panel
+                        mainPanel.add(new creditCard(customerID)); // Add the creditCard panel to the main panel
+                        mainPanel.revalidate(); // Revalidate the main panel to update the layout
+                        mainPanel.repaint(); // Repaint the main panel
+                    }
+                });
+            }
+            else if (label.equals("Transactions")) {
+                navButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        mainPanel.removeAll(); // Remove any existing components from the main panel
+                        mainPanel.add(new creditCard(customerID)); // Add the creditCard panel to the main panel
+                        mainPanel.revalidate(); // Revalidate the main panel to update the layout
+                        mainPanel.repaint(); // Repaint the main panel
+                    }
+                });
+            }
+
+            
+            else if (label.equals("Bill Payments")) {
+                navButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        ((Window) getRootPane().getParent()).dispose();
                         EventQueue.invokeLater(new Runnable() {
                             public void run() {
-                                new creditCard().setVisible(true);
+                                // BillPayments billPayments = new BillPayments();
+                                // billPayments.setVisible(true);
+                            }
+                        });
+                    }
+                });
+            } else if (label.equals("Investments")) {
+                navButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        ((Window) getRootPane().getParent()).dispose();
+                        EventQueue.invokeLater(new Runnable() {
+                            public void run() {
+                                // Investment investment = new Investment();
+                                // investment.setVisible(true);
                             }
                         });
                     }

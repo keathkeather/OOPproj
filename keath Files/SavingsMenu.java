@@ -22,10 +22,7 @@ public class SavingsMenu extends JPanel {
         setBackground(Color.decode("#5cbfe9"));
         
         this.customerID = customerID;
-        // System.out.print(this.customerID);
-        navBar = new NavBar();
-        add(navBar, BorderLayout.WEST);
-
+        
         mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBackground(Color.decode("#5cbfe9"));
 
@@ -60,7 +57,10 @@ public class SavingsMenu extends JPanel {
         mainPanel.add(closeAccountButton, gbc);
 
         add(mainPanel, BorderLayout.CENTER);
-
+        if(navBar == null){ 
+            navBar = new NavBar(mainPanel, customerID);
+            add(navBar, BorderLayout.WEST);
+        }
         // establish database connection
         try {
             connection = DriverManager.getConnection(dbUrl, username, password);
@@ -81,6 +81,7 @@ public class SavingsMenu extends JPanel {
             removeAll();
             setLayout(new BorderLayout());
             add(withdrawOrDepositPanel, BorderLayout.CENTER);
+            // add(navBar, BorderLayout.WEST); // Add the NavBar back
             revalidate();
             repaint();
         }
@@ -93,6 +94,7 @@ public class SavingsMenu extends JPanel {
             removeAll();
             setLayout(new BorderLayout());
             add(sendMoneyPanel, BorderLayout.CENTER);
+            // add(navBar, BorderLayout.WEST); // Add the NavBar back
             revalidate();
             repaint();
         }
