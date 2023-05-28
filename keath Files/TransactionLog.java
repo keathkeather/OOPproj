@@ -7,7 +7,7 @@ public class TransactionLog extends JFrame {
     JTable logTable;
     DefaultTableModel tableModel;
 
-    public TransactionLog() {
+    public TransactionLog(int customerInt) {
         setTitle("Transaction Log");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1080, 720);
@@ -31,7 +31,7 @@ public class TransactionLog extends JFrame {
         JScrollPane scrollPane = new JScrollPane(logTable);
 
         getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(new NavBar(), BorderLayout.WEST);
+        getContentPane().add(new NavBar(customerInt), BorderLayout.WEST);
         getContentPane().add(scrollPane);
 
         // Fetch and display the transaction log
@@ -106,7 +106,7 @@ public class TransactionLog extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            new TransactionLog();
+            // new TransactionLog();
         });
     }
 }

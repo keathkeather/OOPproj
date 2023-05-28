@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 07, 2023 at 06:44 PM
+-- Generation Time: May 28, 2023 at 04:51 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -30,13 +30,25 @@ SET time_zone = "+00:00";
 CREATE TABLE `account` (
   `accountID` int(11) NOT NULL,
   `customerID` int(11) DEFAULT NULL,
-  `currentBal` decimal(15,2) DEFAULT NULL,
-  `accountTypeID` int(11) DEFAULT NULL,
+  `accountNumber` int(6) DEFAULT NULL,
+  `currentBal` decimal(37,2) DEFAULT 5000.00,
+  `accountTypeID` int(11) DEFAULT 1,
+  `creditLimit` decimal(37,2) DEFAULT NULL,
   `accountStatusID` int(11) DEFAULT NULL,
   `interestSavingsRateID` int(11) DEFAULT NULL,
   `dateCreated` datetime DEFAULT NULL,
   `dateModified` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `account`
+--
+
+INSERT INTO `account` (`accountID`, `customerID`, `accountNumber`, `currentBal`, `accountTypeID`, `creditLimit`, `accountStatusID`, `interestSavingsRateID`, `dateCreated`, `dateModified`) VALUES
+(1, 2, 0, 21000.00, 1, 0.00, NULL, NULL, '2023-05-26 19:16:50', '2023-05-26 19:16:50'),
+(6, 2, 0, 45000.00, 2, 50000.00, NULL, NULL, '2023-05-27 02:58:52', '2023-05-27 02:58:52'),
+(9, 34, 0, 5400.00, 1, NULL, NULL, NULL, NULL, NULL),
+(11, 40, NULL, 5000.00, 1, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -60,6 +72,63 @@ CREATE TABLE `accounttype` (
   `accountTypeDesc` varchar(30) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `accounttype`
+--
+
+INSERT INTO `accounttype` (`accountTypeID`, `accountTypeDesc`) VALUES
+(1, 'Debit'),
+(2, 'Credit'),
+(3, 'Checking');
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `account_balance_view`
+-- (See below for the actual view)
+--
+CREATE TABLE `account_balance_view` (
+`accountID` int(11)
+,`customerID` int(11)
+,`accountNumber` int(6)
+,`accountTypeID` int(11)
+,`currentBalance` decimal(38,2)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `balanceview`
+-- (See below for the actual view)
+--
+CREATE TABLE `balanceview` (
+`accountID` int(11)
+,`balance` decimal(37,2)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `billpayments`
+--
+
+CREATE TABLE `billpayments` (
+  `customerID` int(11) NOT NULL,
+  `biller` varchar(255) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `date` date NOT NULL,
+  `payment_method` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `billpayments`
+--
+
+INSERT INTO `billpayments` (`customerID`, `biller`, `amount`, `date`, `payment_method`) VALUES
+(1, 'Globe Telecom', 12000.20, '2023-05-27', 'Debit'),
+(2, 'VECO', 1500.50, '2023-05-27', 'Credit'),
+(3, 'VECO', 1500.51, '2023-05-27', 'Credit');
+
 -- --------------------------------------------------------
 
 --
@@ -76,11 +145,37 @@ CREATE TABLE `company` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `creditcards`
+--
+
+CREATE TABLE `creditcards` (
+  `card_id` int(11) NOT NULL,
+  `remaining_balance` double NOT NULL,
+  `current_limit` double NOT NULL,
+  `payment_due_date` date NOT NULL,
+  `card_type` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `creditcards`
+--
+
+INSERT INTO `creditcards` (`card_id`, `remaining_balance`, `current_limit`, `payment_due_date`, `card_type`) VALUES
+(3, 500, 1000, '2023-12-31', ''),
+(4, 0, 5000, '2023-12-31', ''),
+(5, 500, 1000, '2023-12-31', ''),
+(6, 500, 1000, '2023-12-31', 'Visa');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `customer`
 --
 
 CREATE TABLE `customer` (
   `customerID` int(11) NOT NULL,
+  `username` varchar(25) NOT NULL,
+  `password` varchar(25) NOT NULL,
   `firstName` varchar(30) DEFAULT NULL,
   `lastName` varchar(30) DEFAULT NULL,
   `middleInitial` varchar(4) DEFAULT NULL,
@@ -90,9 +185,17 @@ CREATE TABLE `customer` (
   `contactNumber` varchar(30) DEFAULT NULL,
   `birthday` date DEFAULT NULL,
   `dateCreated` datetime DEFAULT NULL,
-  `dateModified` datetime DEFAULT NULL,
-  `userLoginID` int(11) DEFAULT NULL
+  `dateModified` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `customer`
+--
+
+INSERT INTO `customer` (`customerID`, `username`, `password`, `firstName`, `lastName`, `middleInitial`, `province`, `zipcode`, `emailAddress`, `contactNumber`, `birthday`, `dateCreated`, `dateModified`) VALUES
+(2, '', '', 'Keath', 'Lavador', 'A', 'Cebu', '6014', 'keath.ian@gmail.com', '09569858219', '2023-05-18', '2023-05-26 19:52:37', '2023-05-26 19:52:39'),
+(34, 'ket', 'ket', 'Keath', 'Lavador', 'A.', 'cebu', '6014', 'keath.ian@gmail.com', '09569858219', '2002-03-07', NULL, NULL),
+(40, 'alizaB', 'bataluna', 'aliza', 'Bataluna', 'P.', 'cebu', '6014', 'aliza@gmail.com', '09291121763', '2001-01-01', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -159,15 +262,40 @@ CREATE TABLE `transactionlog` (
   `transactionID` int(11) NOT NULL,
   `transactionDate` datetime DEFAULT NULL,
   `transactionAmount` decimal(15,2) DEFAULT NULL,
+  `TransactionDesc` varchar(255) NOT NULL,
   `transactionFee` decimal(15,2) DEFAULT NULL,
   `accountID` int(11) DEFAULT NULL,
   `customerID` int(11) DEFAULT NULL,
-  `userLoginID` int(11) DEFAULT NULL,
   `investmentID` int(11) DEFAULT NULL,
   `companyID` int(11) DEFAULT NULL,
   `dateCreated` datetime DEFAULT NULL,
   `dateModified` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `transactionlog`
+--
+
+INSERT INTO `transactionlog` (`transactionID`, `transactionDate`, `transactionAmount`, `TransactionDesc`, `transactionFee`, `accountID`, `customerID`, `investmentID`, `companyID`, `dateCreated`, `dateModified`) VALUES
+(1, '2023-05-26 20:06:26', 12000.00, 'deposit', 0.00, 1, 2, NULL, NULL, '2023-05-26 19:16:50', '2023-05-26 19:16:50'),
+(2, '2023-05-26 20:06:26', -5000.00, 'withdraw', 0.00, 1, 2, NULL, NULL, '2023-05-26 19:16:50', '2023-05-26 19:16:50'),
+(3, '2023-05-30 03:11:49', 5000.00, 'withdraw', 0.00, 6, 2, NULL, NULL, NULL, NULL),
+(4, '2023-05-28 16:01:40', 100.00, 'deposit', NULL, 9, 34, NULL, NULL, NULL, NULL),
+(5, '2023-05-28 16:09:01', 200.00, 'deposit', NULL, 9, 34, NULL, NULL, NULL, NULL),
+(6, '2023-05-28 16:19:56', 1000.00, 'deposit', NULL, 9, 34, NULL, NULL, NULL, NULL),
+(7, '2023-05-28 16:21:43', -200.00, 'deposit', NULL, 9, 34, NULL, NULL, NULL, NULL),
+(8, '2023-05-28 16:22:04', 5000.00, 'deposit', NULL, 9, 34, NULL, NULL, NULL, NULL),
+(9, '2023-05-28 16:30:38', -8000.00, 'deposit', NULL, 9, 34, NULL, NULL, NULL, NULL),
+(10, '2023-05-28 17:33:19', 200.00, 'deposit', NULL, 9, 34, NULL, NULL, NULL, NULL),
+(11, '2023-05-28 17:33:25', -200.00, 'deposit', NULL, 9, 34, NULL, NULL, NULL, NULL),
+(12, '2023-05-28 18:39:17', 2000.00, 'Funds Transferred to aliza@gmail.com', NULL, 11, 40, NULL, NULL, NULL, NULL),
+(13, '2023-05-28 18:39:17', 2000.00, 'Funds Sent to aliza@gmail.com', NULL, 9, 34, NULL, NULL, NULL, NULL),
+(14, '2023-05-28 18:40:46', 2000.00, 'Funds Transferred to aliza@gmail.com', NULL, 11, 40, NULL, NULL, NULL, NULL),
+(15, '2023-05-28 18:40:46', 2000.00, 'Funds Sent to aliza@gmail.com', NULL, 9, 34, NULL, NULL, NULL, NULL),
+(16, '2023-05-28 18:41:58', 2000.00, 'Funds Transferred to aliza@gmail.com', NULL, 11, 40, NULL, NULL, NULL, NULL),
+(17, '2023-05-28 18:42:23', -2000.00, 'Funds Sent to aliza@gmail.com', NULL, 9, 34, NULL, NULL, NULL, NULL),
+(18, '2023-05-28 18:43:23', 2000.00, 'Funds Transferred to aliza@gmail.com', NULL, 11, 40, NULL, NULL, NULL, NULL),
+(19, '2023-05-28 18:43:23', -2000.00, 'Funds Sent to aliza@gmail.com', NULL, 9, 34, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -184,16 +312,20 @@ CREATE TABLE `transactiontype` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `userlogin`
+-- Structure for view `account_balance_view`
 --
+DROP TABLE IF EXISTS `account_balance_view`;
 
-CREATE TABLE `userlogin` (
-  `userLoginID` int(11) NOT NULL,
-  `userName` varchar(30) DEFAULT NULL,
-  `userPassword` varchar(30) DEFAULT NULL,
-  `dateCreated` datetime DEFAULT NULL,
-  `dateModified` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `account_balance_view`  AS SELECT `a`.`accountID` AS `accountID`, `a`.`customerID` AS `customerID`, `a`.`accountNumber` AS `accountNumber`, `a`.`accountTypeID` AS `accountTypeID`, CASE WHEN `a`.`accountTypeID` = 1 THEN `a`.`currentBal`+ coalesce(`t`.`TransactionAmount`,0) WHEN `a`.`accountTypeID` = 2 THEN `a`.`creditLimit`- coalesce(`t`.`TransactionAmount`,0) END AS `currentBalance` FROM (`account` `a` left join (select `transactionlog`.`accountID` AS `accountID`,sum(`transactionlog`.`transactionAmount`) AS `TransactionAmount` from `transactionlog` group by `transactionlog`.`accountID`) `t` on(`a`.`accountID` = `t`.`accountID`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `balanceview`
+--
+DROP TABLE IF EXISTS `balanceview`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `balanceview`  AS SELECT `transactionlog`.`accountID` AS `accountID`, sum(`transactionlog`.`transactionAmount`) AS `balance` FROM `transactionlog` GROUP BY `transactionlog`.`accountID` ;
 
 --
 -- Indexes for dumped tables
@@ -222,17 +354,28 @@ ALTER TABLE `accounttype`
   ADD PRIMARY KEY (`accountTypeID`);
 
 --
+-- Indexes for table `billpayments`
+--
+ALTER TABLE `billpayments`
+  ADD PRIMARY KEY (`customerID`);
+
+--
 -- Indexes for table `company`
 --
 ALTER TABLE `company`
   ADD PRIMARY KEY (`companyID`);
 
 --
+-- Indexes for table `creditcards`
+--
+ALTER TABLE `creditcards`
+  ADD PRIMARY KEY (`card_id`);
+
+--
 -- Indexes for table `customer`
 --
 ALTER TABLE `customer`
-  ADD PRIMARY KEY (`customerID`),
-  ADD KEY `userLoginID` (`userLoginID`);
+  ADD PRIMARY KEY (`customerID`);
 
 --
 -- Indexes for table `interestsavingsrate`
@@ -269,7 +412,6 @@ ALTER TABLE `transactionlog`
   ADD PRIMARY KEY (`transactionID`),
   ADD KEY `accountID` (`accountID`),
   ADD KEY `customerID` (`customerID`),
-  ADD KEY `userLoginID` (`userLoginID`),
   ADD KEY `investmentID` (`investmentID`),
   ADD KEY `companyID` (`companyID`);
 
@@ -280,12 +422,6 @@ ALTER TABLE `transactiontype`
   ADD PRIMARY KEY (`transactionTypeID`);
 
 --
--- Indexes for table `userlogin`
---
-ALTER TABLE `userlogin`
-  ADD PRIMARY KEY (`userLoginID`);
-
---
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -293,7 +429,7 @@ ALTER TABLE `userlogin`
 -- AUTO_INCREMENT for table `account`
 --
 ALTER TABLE `account`
-  MODIFY `accountID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `accountID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `accountstatus`
@@ -305,7 +441,13 @@ ALTER TABLE `accountstatus`
 -- AUTO_INCREMENT for table `accounttype`
 --
 ALTER TABLE `accounttype`
-  MODIFY `accountTypeID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `accountTypeID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `billpayments`
+--
+ALTER TABLE `billpayments`
+  MODIFY `customerID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `company`
@@ -314,10 +456,16 @@ ALTER TABLE `company`
   MODIFY `companyID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `creditcards`
+--
+ALTER TABLE `creditcards`
+  MODIFY `card_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
 -- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
-  MODIFY `customerID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `customerID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `interestsavingsrate`
@@ -347,19 +495,13 @@ ALTER TABLE `loanstatus`
 -- AUTO_INCREMENT for table `transactionlog`
 --
 ALTER TABLE `transactionlog`
-  MODIFY `transactionID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `transactionID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `transactiontype`
 --
 ALTER TABLE `transactiontype`
   MODIFY `transactionTypeID` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `userlogin`
---
-ALTER TABLE `userlogin`
-  MODIFY `userLoginID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
@@ -373,12 +515,6 @@ ALTER TABLE `account`
   ADD CONSTRAINT `account_ibfk_2` FOREIGN KEY (`accountTypeID`) REFERENCES `accounttype` (`accountTypeID`),
   ADD CONSTRAINT `account_ibfk_3` FOREIGN KEY (`accountStatusID`) REFERENCES `accountstatus` (`accountStatusID`),
   ADD CONSTRAINT `account_ibfk_4` FOREIGN KEY (`interestSavingsRateID`) REFERENCES `interestsavingsrate` (`interestSavingsRateID`);
-
---
--- Constraints for table `customer`
---
-ALTER TABLE `customer`
-  ADD CONSTRAINT `customer_ibfk_1` FOREIGN KEY (`userLoginID`) REFERENCES `userlogin` (`userLoginID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `investment`
@@ -400,7 +536,6 @@ ALTER TABLE `loan`
 ALTER TABLE `transactionlog`
   ADD CONSTRAINT `transactionlog_ibfk_1` FOREIGN KEY (`accountID`) REFERENCES `account` (`accountID`),
   ADD CONSTRAINT `transactionlog_ibfk_2` FOREIGN KEY (`customerID`) REFERENCES `customer` (`customerID`),
-  ADD CONSTRAINT `transactionlog_ibfk_3` FOREIGN KEY (`userLoginID`) REFERENCES `userlogin` (`userLoginID`),
   ADD CONSTRAINT `transactionlog_ibfk_4` FOREIGN KEY (`investmentID`) REFERENCES `investment` (`investmentID`),
   ADD CONSTRAINT `transactionlog_ibfk_5` FOREIGN KEY (`companyID`) REFERENCES `company` (`companyID`);
 COMMIT;

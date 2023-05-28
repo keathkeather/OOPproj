@@ -1,0 +1,70 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "App",
+            "request": "launch",
+            "mainClass": "App",
+            "projectName": "OOPproj_61237107"
+        },
+        {
+            "type": "java",
+            "name": "ModifiedBankLogin",
+            "request": "launch",
+            "mainClass": "ModifiedBankLogin",
+            "projectName": "OOPproj_61237107"
+        },
+        {
+            "type": "java",
+            "name": "ModifiedRegistration",
+            "request": "launch",
+            "mainClass": "ModifiedRegistration",
+            "projectName": "OOPproj_61237107"
+        },
+        {
+            "type": "java",
+            "name": "TransactionLog",
+            "request": "launch",
+            "mainClass": "TransactionLog",
+            "projectName": "OOPproj_61237107"
+        },
+        {
+            "type": "java",
+            "name": "checkLogin",
+            "request": "launch",
+            "mainClass": "checkLogin",
+            "projectName": "OOPproj_61237107"
+        },
+        {
+            "type": "java",
+            "name": "creditCard",
+            "request": "launch",
+            "mainClass": "creditCard",
+            "projectName": "OOPproj_61237107"
+        },
+        {
+            "type": "java",
+            "name": "investment",
+            "request": "launch",
+            "mainClass": "investment",
+            "projectName": "OOPproj_61237107"
+        },
+        {
+            "type": "java",
+            "name": "investmentProducts",
+            "request": "launch",
+            "mainClass": "investmentProducts",
+            "projectName": "OOPproj_61237107"
+        }
+    ]
+}
