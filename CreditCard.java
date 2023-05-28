@@ -38,7 +38,7 @@ public class CreditCard extends JFrame {
 
         JPanel remainingBalanceContainer = new JPanel();
         remainingBalanceContainer.setBackground(white);
-        remainingBalanceContainer.setPreferredSize(new Dimension(150, 50));
+        remainingBalanceContainer.setMaximumSize(new Dimension(150, 100));
         remainingBalanceContainer.setLayout(new BorderLayout());
 
         remainingBalanceLabel = new JLabel();
@@ -58,7 +58,7 @@ public class CreditCard extends JFrame {
 
         JPanel currentLimitContainer = new JPanel();
         currentLimitContainer.setBackground(white);
-        currentLimitContainer.setPreferredSize(new Dimension(150, 50));
+        currentLimitContainer.setMaximumSize(new Dimension(150, 100));
         currentLimitContainer.setLayout(new BorderLayout());
 
         currentLimitLabel = new JLabel();
@@ -78,7 +78,7 @@ public class CreditCard extends JFrame {
 
         JPanel paymentDueContainer = new JPanel();
         paymentDueContainer.setBackground(white);
-        paymentDueContainer.setPreferredSize(new Dimension(150, 50));
+        paymentDueContainer.setMaximumSize(new Dimension(150, 100));
         paymentDueContainer.setLayout(new BorderLayout());
 
         paymentDueLabel = new JLabel();

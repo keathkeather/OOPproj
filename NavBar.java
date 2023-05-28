@@ -1,15 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
+package AssignedFeature;
 
-package com.mycompany.navbar;
-
-/**
- *
- * @author Simoun
- */
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class NavBar extends JPanel {
     public NavBar() {
@@ -30,10 +24,10 @@ public class NavBar extends JPanel {
         referenceBox.setLayout(new BorderLayout());
         referenceBox.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         JLabel referenceLabel = new JLabel("Checking Accounts");
-        referenceLabel.setFont(new Font("Arial", Font.PLAIN, 14)); 
+        referenceLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         referenceBox.add(referenceLabel, BorderLayout.CENTER);
         Dimension referenceSize = referenceBox.getPreferredSize();
-        referenceSize.width += 35; 
+        referenceSize.width += 35;
 
         for (String label : navLabels) {
             JPanel navBox = new JPanel();
@@ -48,6 +42,48 @@ public class NavBar extends JPanel {
             navButton.setBackground(Color.decode("#4F93D2"));
             navButton.setBorderPainted(false);
             navButton.setFocusPainted(false);
+
+            if (label.equals("Credit Cards")) {
+                navButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        ((Window) getRootPane().getParent()).dispose();
+                        EventQueue.invokeLater(new Runnable() {
+                            public void run() {
+                                CreditCard creditCard = new CreditCard();
+                                creditCard.setVisible(true);
+                            }
+                        });
+                    }
+                });
+            } else if (label.equals("Bill Payments")) {
+                navButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        ((Window) getRootPane().getParent()).dispose();
+                        EventQueue.invokeLater(new Runnable() {
+                            public void run() {
+                                BillPayments billPayments = new BillPayments();
+                                billPayments.setVisible(true);
+                            }
+                        });
+                    }
+                });
+            } else if (label.equals("Investments")) {
+                navButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        ((Window) getRootPane().getParent()).dispose();
+                        EventQueue.invokeLater(new Runnable() {
+                            public void run() {
+                                Investment investment = new Investment();
+                                investment.setVisible(true);
+                            }
+                        });
+                    }
+                });
+            }
+
             navBox.add(navButton, BorderLayout.CENTER);
 
             JPanel boxContainer = new JPanel();
@@ -60,22 +96,4 @@ public class NavBar extends JPanel {
 
         setPreferredSize(new Dimension(200, 600));
     }
-    public static void main(String[] args) {
-    JFrame frame = new JFrame();
-    frame.add(new NavBar());
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(300, 300);
-    frame.setVisible(true);
-    }
 }
-
-
-
-
-
-
-
-
-
-
-
