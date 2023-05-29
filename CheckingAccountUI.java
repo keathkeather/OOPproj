@@ -14,7 +14,6 @@ public class CheckingAccountUI extends JFrame {
     private String accountNumber;
     private double balance;
     private Connection connection;
-        private NavBar navBar;
     private String dbUrl = "jdbc:mysql://localhost:3306/oopproject";
     private String username = "root";
     private String password = "";
@@ -25,23 +24,27 @@ public class CheckingAccountUI extends JFrame {
     private Rounded.RoundedTextField withdrawAmountField;
     
     
-    String className = "com.mysql.cj.jdbc.Driver";
-
+    
     public CheckingAccountUI() {
    
         setTitle("Checking Account");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1080,720);
         setLocationRelativeTo(null);
-        
-        navBar = new NavBar();
-        add(navBar, BorderLayout.WEST);
+
         
         setLayout(new BorderLayout());
         setBackground(Color.decode("#5cbfe9"));
         
         // Establish a database connection (assuming you have set up the connection details)
+        String className = "com.mysql.cj.jdbc.Driver";
 
+    try {
+        Class.forName(className);
+        System.out.println("Driver is loaded successfully.");
+    } catch (ClassNotFoundException ex) {
+        System.out.println("Driver failed to load.");
+    }
         try {
             connection = DriverManager.getConnection(dbUrl, username, password);
         } catch (SQLException ex) {
@@ -52,7 +55,7 @@ public class CheckingAccountUI extends JFrame {
 
 
         //components
-        balanceLabel = new JLabel("Balance: $0.00");
+        balanceLabel = new JLabel();
         
         transferAmountField = new Rounded.RoundedTextField(50,5);
         transferButton = new Rounded.RoundedButton("Transfer to Savings",10);
@@ -119,6 +122,7 @@ public class CheckingAccountUI extends JFrame {
         
         add(mainPanel);
         setVisible(true);
+        updateBalanceLabel();
         
         withdrawButton.addActionListener(new ActionListener() {
         @Override
@@ -127,9 +131,9 @@ public class CheckingAccountUI extends JFrame {
 
             try {
                 double amount = Double.parseDouble(withdrawAmount);
-                double savingsBalance = retrieveBalanceFromDatabase();
+                double currentBalance = retrieveBalanceFromDatabase();
 
-                if (amount > savingsBalance) {
+                if (amount < currentBalance) {
                     JOptionPane.showMessageDialog(null, "Insufficient funds. Cannot withdraw amount.", "Error",
                             JOptionPane.ERROR_MESSAGE);
                     return;
@@ -150,9 +154,9 @@ public class CheckingAccountUI extends JFrame {
             try {
                 double amount = Double.parseDouble(transferAmount);
                 updateBalanceInDatabase(amount);
-                JOptionPane.showMessageDialog(null, "Deposit Success!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Transfer Success!", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(null, "Cannot deposit amount", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Cannot transfer amount", "Error", JOptionPane.ERROR_MESSAGE);
             }
             transferAmountField.setText("");
         }
@@ -171,6 +175,7 @@ public class CheckingAccountUI extends JFrame {
 
             if (resultSet.next()) {
                 currentBalance = resultSet.getDouble("currentBal");
+                
             }
             connection.close();
         } catch (Exception e) {
@@ -195,7 +200,7 @@ public class CheckingAccountUI extends JFrame {
 
 
     public void updateBalanceLabel() {
-        balanceLabel.setText("Balance: $" + balance);
+        balanceLabel.setText("Balance: $" + retrieveBalanceFromDatabase());
     }
 
     public static void main(String[] args) {
