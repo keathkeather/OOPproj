@@ -1,5 +1,4 @@
 
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -10,11 +9,11 @@ public class investment extends JFrame {
     private JLabel buyOrdersLabel;
     private JLabel sellOrdersLabel;
     private JLabel pendingOrdersLabel;
-    private InvestmentPaymentsDatabaseManager dbManager;
+    // private InvestmentPaymentsDatabaseManager dbManager;
 
     public investment() {
-        dbManager = new InvestmentPaymentsDatabaseManager();
-        
+        // dbManager = new InvestmentPaymentsDatabaseManager();
+
         setTitle("Investments");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(1080, 720);
@@ -27,8 +26,8 @@ public class investment extends JFrame {
         getContentPane().setBackground(skyBlue);
 
         setLayout(new BorderLayout());
-        NavBar navBar = new NavBar();
-        add(navBar, BorderLayout.WEST);
+        // NavBar navBar = new NavBar();
+        // add(navBar, BorderLayout.WEST);
 
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
@@ -49,7 +48,8 @@ public class investment extends JFrame {
 
         JPanel marketValueContainer = new JPanel();
         marketValueContainer.setBackground(white);
-        marketValueContainer.setMaximumSize(new Dimension(150, 100)); // mao ni ang container size change lang nya kung unsa ang ganahan
+        marketValueContainer.setMaximumSize(new Dimension(150, 100)); // mao ni ang container size change lang nya kung
+                                                                      // unsa ang ganahan
         marketValueContainer.setLayout(new BorderLayout());
         marketValueLabel = new JLabel("PHP 0.00");
         marketValueLabel.setFont(new Font("Arial", Font.BOLD, 16));
@@ -73,7 +73,7 @@ public class investment extends JFrame {
 
         JPanel buyOrdersContainer = new JPanel();
         buyOrdersContainer.setBackground(white);
-        buyOrdersContainer.setMaximumSize(new Dimension(150, 100)); 
+        buyOrdersContainer.setMaximumSize(new Dimension(150, 100));
         buyOrdersContainer.setLayout(new BorderLayout());
 
         buyOrdersLabel = new JLabel("PHP 0.00");
@@ -92,7 +92,7 @@ public class investment extends JFrame {
 
         JPanel sellOrdersContainer = new JPanel();
         sellOrdersContainer.setBackground(white);
-        sellOrdersContainer.setMaximumSize(new Dimension(150, 100)); 
+        sellOrdersContainer.setMaximumSize(new Dimension(150, 100));
         sellOrdersContainer.setLayout(new BorderLayout());
 
         sellOrdersLabel = new JLabel("PHP 0.00");
@@ -116,26 +116,26 @@ public class investment extends JFrame {
         contentPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
         StyledButton viewTransactionHistoryButton = new StyledButton("View Investment Transaction History");
-        viewTransactionHistoryButton.setBackground(darkBlue); 
-        viewTransactionHistoryButton.setAlignmentX(Component.CENTER_ALIGNMENT); 
+        viewTransactionHistoryButton.setBackground(darkBlue);
+        viewTransactionHistoryButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         contentPanel.add(viewTransactionHistoryButton);
 
         getContentPane().add(contentPanel, BorderLayout.CENTER);
     }
-    
+
     private double getProductValue(String productName) {
-    // g default 1k lang sa nako ang value sa mga products
+        // g default 1k lang sa nako ang value sa mga products
         return 1000.00;
     }
-    
+
     private void openInvestmentProductsDialog() {
         JDialog dialog = new JDialog(this, "Investment Products", true);
         dialog.setSize(300, 200);
         dialog.setLocationRelativeTo(this);
 
         String[] investmentProducts = {
-            "CodeChum", "CIT Lair", "Bank of the Philippines",
-            "Globe Telecom", "Smart Telecom", "TalkNText Telecom"
+                "CodeChum", "CIT Lair", "Bank of the Philippines",
+                "Globe Telecom", "Smart Telecom", "TalkNText Telecom"
         };
 
         JComboBox<String> productComboBox = new JComboBox<>(investmentProducts);
@@ -158,12 +158,14 @@ public class investment extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String selectedProduct = (String) productComboBox.getSelectedItem();
                 double productValue = getProductValue(selectedProduct);
-                dbManager.createInvestment(selectedProduct, productValue, "2023-05-28"); // default gapon ang date d ko kbaw unsaon na hahahah
+                // dbManager.createInvestment(selectedProduct, productValue, "2023-05-28"); //
+                // default gapon ang date d ko
+                // kbaw unsaon na hahahah
             }
         });
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(3, 1)); 
+        panel.setLayout(new GridLayout(3, 1));
         panel.add(productComboBox);
         panel.add(productValueLabel);
         panel.add(buyButton);

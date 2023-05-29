@@ -18,7 +18,7 @@ public class BillPayments extends JFrame {
 
     public BillPayments() {
         dbManager = new BillPaymentsDatabaseManager();
-        
+
         setTitle("Bill Payments");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1080, 720);
@@ -44,7 +44,7 @@ public class BillPayments extends JFrame {
         billerLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         billerLabel.setForeground(Color.WHITE);
 
-        billerComboBox = new JComboBox<>(new String[]{
+        billerComboBox = new JComboBox<>(new String[] {
                 "PLDT", "Globe Telecom", "VECO", "Cebu Water",
                 "Smart Communications", "Sun Cellular", "Sky Cable", "Converge ICT"
         });
@@ -108,11 +108,10 @@ public class BillPayments extends JFrame {
         updateButton.addActionListener(e -> {
             String customerID = JOptionPane.showInputDialog(this, "Enter Customer ID to Update:");
             performUpdateOperation(customerID,
-                (String) billerComboBox.getSelectedItem(),
-                Double.parseDouble(amountField.getText()),
-                dateField.getText(),
-                creditButton.isSelected() ? "Credit" : "Debit"
-            );
+                    (String) billerComboBox.getSelectedItem(),
+                    Double.parseDouble(amountField.getText()),
+                    dateField.getText(),
+                    creditButton.isSelected() ? "Credit" : "Debit");
         });
 
         StyledButton deleteButton = new StyledButton("Delete bill payment");
@@ -134,12 +133,12 @@ public class BillPayments extends JFrame {
         getContentPane().setBackground(Color.WHITE);
         getContentPane().add(contentPanel, BorderLayout.CENTER);
 
-        NavBar navBar = new NavBar();
+        // NavBar navBar = new NavBar();
 
-        JScrollPane navBarScrollPane = new JScrollPane(navBar);
-        navBarScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        // JScrollPane navBarScrollPane = new JScrollPane(navBar);
+        // navBarScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-        getContentPane().add(navBarScrollPane, BorderLayout.WEST);
+        // getContentPane().add(navBarScrollPane, BorderLayout.WEST);
     }
 
     private void performPaymentOperation() {
@@ -151,12 +150,14 @@ public class BillPayments extends JFrame {
         dbManager.createBillPayment(biller, amount, date, paymentMethod);
 
         JOptionPane.showMessageDialog(this,
-                "Payment of " + amount + " pesos" + " to " + biller + " on " + date + " through " + paymentMethod + " was successful.",
+                "Payment of " + amount + " pesos" + " to " + biller + " on " + date + " through " + paymentMethod
+                        + " was successful.",
                 "Payment Successful",
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private void performUpdateOperation(String customerID, String biller, double amount, String date, String paymentMethod) {
+    private void performUpdateOperation(String customerID, String biller, double amount, String date,
+            String paymentMethod) {
         boolean customerExists = dbManager.checkCustomerIDExists(customerID);
         if (customerExists) {
             dbManager.updateBillPayment(customerID, biller, amount, date, paymentMethod);

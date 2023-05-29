@@ -3,7 +3,11 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
+<<<<<<< HEAD
 -- Generation Time: May 28, 2023 at 05:45 PM
+=======
+-- Generation Time: May 28, 2023 at 04:51 PM
+>>>>>>> 100770fe923463691f687e8bd6efe5f96f294a0f
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -45,11 +49,18 @@ CREATE TABLE `account` (
 --
 
 INSERT INTO `account` (`accountID`, `customerID`, `accountNumber`, `currentBal`, `accountTypeID`, `creditLimit`, `accountStatusID`, `interestSavingsRateID`, `dateCreated`, `dateModified`) VALUES
+<<<<<<< HEAD
 (1, 2, 0, 20012.52, 1, 0.00, NULL, NULL, '2023-05-26 19:16:50', '2023-05-26 19:16:50'),
 (6, 2, 0, 46611.00, 2, 50000.00, NULL, NULL, '2023-05-27 02:58:52', '2023-05-27 02:58:52'),
 (9, 34, 0, 4412.52, 1, NULL, NULL, NULL, NULL, NULL),
 (11, 40, NULL, 4012.52, 1, NULL, NULL, NULL, NULL, NULL),
 (12, 41, NULL, 4012.52, 1, NULL, NULL, NULL, NULL, NULL);
+=======
+(1, 2, 0, 21000.00, 1, 0.00, NULL, NULL, '2023-05-26 19:16:50', '2023-05-26 19:16:50'),
+(6, 2, 0, 45000.00, 2, 50000.00, NULL, NULL, '2023-05-27 02:58:52', '2023-05-27 02:58:52'),
+(9, 34, 0, 5400.00, 1, NULL, NULL, NULL, NULL, NULL),
+(11, 40, NULL, 5000.00, 1, NULL, NULL, NULL, NULL, NULL);
+>>>>>>> 100770fe923463691f687e8bd6efe5f96f294a0f
 
 -- --------------------------------------------------------
 
@@ -107,6 +118,32 @@ CREATE TABLE `balanceview` (
 ,`balance` decimal(37,2)
 );
 
+<<<<<<< HEAD
+=======
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `billpayments`
+--
+
+CREATE TABLE `billpayments` (
+  `customerID` int(11) NOT NULL,
+  `biller` varchar(255) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `date` date NOT NULL,
+  `payment_method` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `billpayments`
+--
+
+INSERT INTO `billpayments` (`customerID`, `biller`, `amount`, `date`, `payment_method`) VALUES
+(1, 'Globe Telecom', 12000.20, '2023-05-27', 'Debit'),
+(2, 'VECO', 1500.50, '2023-05-27', 'Credit'),
+(3, 'VECO', 1500.51, '2023-05-27', 'Credit');
+
+>>>>>>> 100770fe923463691f687e8bd6efe5f96f294a0f
 -- --------------------------------------------------------
 
 --
@@ -119,6 +156,30 @@ CREATE TABLE `company` (
   `companyType` varchar(30) DEFAULT NULL,
   `sharePrice` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `creditcards`
+--
+
+CREATE TABLE `creditcards` (
+  `card_id` int(11) NOT NULL,
+  `remaining_balance` double NOT NULL,
+  `current_limit` double NOT NULL,
+  `payment_due_date` date NOT NULL,
+  `card_type` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `creditcards`
+--
+
+INSERT INTO `creditcards` (`card_id`, `remaining_balance`, `current_limit`, `payment_due_date`, `card_type`) VALUES
+(3, 500, 1000, '2023-12-31', ''),
+(4, 0, 5000, '2023-12-31', ''),
+(5, 500, 1000, '2023-12-31', ''),
+(6, 500, 1000, '2023-12-31', 'Visa');
 
 -- --------------------------------------------------------
 
@@ -149,8 +210,12 @@ CREATE TABLE `customer` (
 INSERT INTO `customer` (`customerID`, `username`, `password`, `firstName`, `lastName`, `middleInitial`, `province`, `zipcode`, `emailAddress`, `contactNumber`, `birthday`, `dateCreated`, `dateModified`) VALUES
 (2, '', '', 'Keath', 'Lavador', 'A', 'Cebu', '6014', 'keath.ian@gmail.com', '09569858219', '2023-05-18', '2023-05-26 19:52:37', '2023-05-26 19:52:39'),
 (34, 'ket', 'ket', 'Keath', 'Lavador', 'A.', 'cebu', '6014', 'keath.ian@gmail.com', '09569858219', '2002-03-07', NULL, NULL),
+<<<<<<< HEAD
 (40, 'alizaB', 'bataluna', 'aliza', 'Bataluna', 'P.', 'cebu', '6014', 'aliza@gmail.com', '09291121763', '2001-01-01', NULL, NULL),
 (41, 'asd', 'asd1', 'asd', 'asd', 'a', 'asd', '6000', 'asd@gmail.com', '09123456789', '2001-01-01', NULL, NULL);
+=======
+(40, 'alizaB', 'bataluna', 'aliza', 'Bataluna', 'P.', 'cebu', '6014', 'aliza@gmail.com', '09291121763', '2001-01-01', NULL, NULL);
+>>>>>>> 100770fe923463691f687e8bd6efe5f96f294a0f
 
 -- --------------------------------------------------------
 
@@ -268,11 +333,15 @@ INSERT INTO `transactionlog` (`transactionID`, `transactionDate`, `transactionAm
 (16, '2023-05-28 18:41:58', 2000.00, 'Funds Transferred to aliza@gmail.com', NULL, 11, 40, NULL, NULL, NULL, NULL),
 (17, '2023-05-28 18:42:23', -2000.00, 'Funds Sent to aliza@gmail.com', NULL, 9, 34, NULL, NULL, NULL, NULL),
 (18, '2023-05-28 18:43:23', 2000.00, 'Funds Transferred to aliza@gmail.com', NULL, 11, 40, NULL, NULL, NULL, NULL),
+<<<<<<< HEAD
 (19, '2023-05-28 18:43:23', -2000.00, 'Funds Sent to aliza@gmail.com', NULL, 9, 34, NULL, NULL, NULL, NULL),
 (20, '2023-05-28 20:57:22', 100.00, 'deposit', NULL, 12, 41, NULL, NULL, NULL, NULL),
 (21, '2023-05-28 20:57:28', -100.00, 'deposit', NULL, 12, 41, NULL, NULL, NULL, NULL),
 (22, '2023-05-28 20:58:55', 100.00, 'Funds Transferred to aliza@gmail.com', NULL, 11, 40, NULL, NULL, NULL, NULL),
 (23, '2023-05-28 20:58:55', -100.00, 'Funds Sent to aliza@gmail.com', NULL, 12, 41, NULL, NULL, NULL, NULL);
+=======
+(19, '2023-05-28 18:43:23', -2000.00, 'Funds Sent to aliza@gmail.com', NULL, 9, 34, NULL, NULL, NULL, NULL);
+>>>>>>> 100770fe923463691f687e8bd6efe5f96f294a0f
 
 -- --------------------------------------------------------
 
@@ -331,10 +400,22 @@ ALTER TABLE `accounttype`
   ADD PRIMARY KEY (`accountTypeID`);
 
 --
+-- Indexes for table `billpayments`
+--
+ALTER TABLE `billpayments`
+  ADD PRIMARY KEY (`customerID`);
+
+--
 -- Indexes for table `company`
 --
 ALTER TABLE `company`
   ADD PRIMARY KEY (`companyID`);
+
+--
+-- Indexes for table `creditcards`
+--
+ALTER TABLE `creditcards`
+  ADD PRIMARY KEY (`card_id`);
 
 --
 -- Indexes for table `customer`
@@ -393,7 +474,11 @@ ALTER TABLE `transactiontype`
 -- AUTO_INCREMENT for table `account`
 --
 ALTER TABLE `account`
+<<<<<<< HEAD
   MODIFY `accountID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+=======
+  MODIFY `accountID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+>>>>>>> 100770fe923463691f687e8bd6efe5f96f294a0f
 
 --
 -- AUTO_INCREMENT for table `accountstatus`
@@ -406,6 +491,15 @@ ALTER TABLE `accountstatus`
 --
 ALTER TABLE `accounttype`
   MODIFY `accountTypeID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+<<<<<<< HEAD
+=======
+
+--
+-- AUTO_INCREMENT for table `billpayments`
+--
+ALTER TABLE `billpayments`
+  MODIFY `customerID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+>>>>>>> 100770fe923463691f687e8bd6efe5f96f294a0f
 
 --
 -- AUTO_INCREMENT for table `company`
@@ -414,10 +508,20 @@ ALTER TABLE `company`
   MODIFY `companyID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `creditcards`
+--
+ALTER TABLE `creditcards`
+  MODIFY `card_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
 -- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
+<<<<<<< HEAD
   MODIFY `customerID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+=======
+  MODIFY `customerID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+>>>>>>> 100770fe923463691f687e8bd6efe5f96f294a0f
 
 --
 -- AUTO_INCREMENT for table `interestsavingsrate`
@@ -447,7 +551,11 @@ ALTER TABLE `loanstatus`
 -- AUTO_INCREMENT for table `transactionlog`
 --
 ALTER TABLE `transactionlog`
+<<<<<<< HEAD
   MODIFY `transactionID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+=======
+  MODIFY `transactionID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+>>>>>>> 100770fe923463691f687e8bd6efe5f96f294a0f
 
 --
 -- AUTO_INCREMENT for table `transactiontype`

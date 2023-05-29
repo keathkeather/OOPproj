@@ -1,7 +1,5 @@
 // Bataluna, Calculating and Applying for Loan
 
-package com.mycompany.bankLoan;
-
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.*;
@@ -19,21 +17,23 @@ public class BankLoan extends JPanel {
     private ApplyLoanListener applyLoanListener;
     private CancelLoanListener cancelLoanListener;
     private Connection connection;
+    private int customerID;
     private NavBar navBar;
     private Font labelFont, labelFont1;
 
     GridBagConstraints constraints;
 
-    private String dbUrl = "jdbc:mysql://localhost:3306/oop";
+    private String dbUrl = "jdbc:mysql://localhost:3306/oopproject";
     private String username = "root";
     private String password = "";
 
-    public BankLoan() {
+    public BankLoan(int customerID) {
         setLayout(new BorderLayout());
         setBackground(Color.decode("#5cbfe9"));
 
-        navBar = new NavBar();
-        add(navBar, BorderLayout.WEST);
+        this.customerID = customerID;
+
+        // add(navBar, BorderLayout.WEST);
 
         labelFont = new Font("Arial Rounded MT Bold", Font.PLAIN, 16);
         labelFont1 = new Font("Verdana", Font.BOLD, 20);
@@ -134,6 +134,10 @@ public class BankLoan extends JPanel {
         constraints.gridy++;
 
         add(loanDetailsPanel, BorderLayout.CENTER);
+        if (navBar == null) {
+            navBar = new NavBar(loanDetailsPanel, customerID);
+            add(navBar, BorderLayout.WEST);
+        }
 
         try {
             connection = DriverManager.getConnection(dbUrl, username, password);
@@ -180,14 +184,16 @@ public class BankLoan extends JPanel {
                 String endDateStr = dateFormat.format(endDate);
 
                 // Retrieve the accountID from the account table
-                String customerIDQuery = "SELECT customerID FROM account";
-                PreparedStatement accountIDStatement = connection.prepareStatement(customerIDQuery);
-                ResultSet customerIDResult = accountIDStatement.executeQuery();
+                // String customerIDQuery = "SELECT customerID FROM account";
+                // PreparedStatement accountIDStatement =
+                // connection.prepareStatement(customerIDQuery);
+                // ResultSet customerIDResult = accountIDStatement.executeQuery();
 
-                int customerID = 0; // Initialize with a default value
-                if (customerIDResult.next()) {
-                    customerID = customerIDResult.getInt("customerID");
-                }
+                // customerID = 41;
+                // Initialize with a default value
+                // if (customerIDResult.next()) {
+                // customerID = customerIDResult.getInt("customerID");
+                // }
 
                 // Inserting loan information into the database
                 String insertSql = "INSERT INTO loan (amount, startDATE, duration, customerID) VALUES (?, ?, ?, ?)";
@@ -206,7 +212,7 @@ public class BankLoan extends JPanel {
                     int loanID = generatedKeys.getInt(1);
 
                     // Querying the database to get the calculated values & interestRate
-                    String loanInfoQuery = "SELECT duration, endDATE, interestRate, monthlyDue, loanBal FROM loan WHERE loanID = ?";
+                    String loanInfoQuery = "SELECT duration, endDATE, interestRate, monthlyDue, loanBal, remainingBal FROM loan WHERE loanID = ?";
                     PreparedStatement loanInfoStatement = connection.prepareStatement(loanInfoQuery);
                     loanInfoStatement.setInt(1, loanID);
                     ResultSet loanInfoResult = loanInfoStatement.executeQuery();
@@ -236,7 +242,6 @@ public class BankLoan extends JPanel {
                                 "   Loan Amount: " + loanAmount + "\n" +
                                 "   Interest Rate: " + interestRate + "%\n" +
                                 "   Loan Duration: " + loanDuration + " months" + "\n" +
-                                "   Start Date: " + startDateStr + "\n" +
                                 "   End Date: " + endDateStr + "\n" +
                                 "   Monthly Due: Php" + monthlyDue + "\n" +
                                 "   Loan Balance: Php" + loanBal + "\n";
@@ -260,7 +265,7 @@ public class BankLoan extends JPanel {
                 double loanAmount = Double.parseDouble(getAmountField().getText());
 
                 // Update the savings field in the account table
-                String updateSql = "UPDATE account SET savings = savings + ? WHERE accountType = ?";
+                String updateSql = "UPDATE account SET currentBal = currentBal + ? WHERE accountTypeID = ?";
                 PreparedStatement updateStatement = connection.prepareStatement(updateSql);
                 updateStatement.setDouble(1, loanAmount);
                 updateStatement.setInt(2, 2);
@@ -277,7 +282,7 @@ public class BankLoan extends JPanel {
                         null);
                 if (option == JOptionPane.OK_OPTION || option == JOptionPane.CLOSED_OPTION) {
                     SwingUtilities.invokeLater(() -> {
-                        LoanMenu loanMenu = new LoanMenu();
+                        LoanMenu loanMenu = new LoanMenu(customerID);
                         JFrame currentWindow = (JFrame) SwingUtilities.getWindowAncestor(BankLoan.this);
                         JPanel newContentPane = new JPanel();
                         newContentPane.setLayout(new BorderLayout());
@@ -324,7 +329,7 @@ public class BankLoan extends JPanel {
 
                     // Redirect to the LoanMenu page
                     SwingUtilities.invokeLater(() -> {
-                        LoanMenu loanMenu = new LoanMenu();
+                        LoanMenu loanMenu = new LoanMenu(customerID);
                         JFrame currentWindow = (JFrame) SwingUtilities.getWindowAncestor(BankLoan.this);
                         JPanel newContentPane = new JPanel();
                         newContentPane.setLayout(new BorderLayout());

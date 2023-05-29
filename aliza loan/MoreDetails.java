@@ -1,7 +1,5 @@
 // Bataluna, Popup for Loan Details
 
-package com.mycompany.bankLoan;
-
 import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
@@ -11,7 +9,7 @@ public class MoreDetails {
     private Connection connection;
     private Statement statement;
 
-    private String dbUrl = "jdbc:mysql://localhost:3306/oop";
+    private String dbUrl = "jdbc:mysql://localhost:3306/oopproject";
     private String username = "root";
     private String password = "";
 
@@ -42,6 +40,7 @@ public class MoreDetails {
                 String endDATE = resultSet.getString("endDATE");
                 double monthlyDue = resultSet.getDouble("monthlyDue");
                 double loanBal = resultSet.getDouble("loanBal");
+                double remainingBal = resultSet.getDouble("remainingBal");
 
                 String loanDetails = "Loan Amount: " + amount + "\n" +
                         "Interest Rate: " + interestRate + "%\n" +
@@ -49,7 +48,8 @@ public class MoreDetails {
                         "Start Date: " + startDATE + "\n" +
                         "End Date: " + endDATE + "\n" +
                         "Monthly Due: Php" + monthlyDue + "\n" +
-                        "Loan Balance: Php" + loanBal;
+                        "Loan Balance: Php" + loanBal +
+                        "\nRemaining Balance: " + remainingBal + "\n";
 
                 loanDetailsArea.setText(loanDetails);
             } else {
